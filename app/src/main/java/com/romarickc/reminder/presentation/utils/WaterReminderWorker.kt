@@ -14,7 +14,12 @@ import androidx.annotation.RequiresApi
 import androidx.core.app.ActivityCompat
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
-import androidx.work.*
+import androidx.work.Constraints
+import androidx.work.ExistingPeriodicWorkPolicy
+import androidx.work.PeriodicWorkRequestBuilder
+import androidx.work.WorkManager
+import androidx.work.Worker
+import androidx.work.WorkerParameters
 import com.romarickc.reminder.R
 import com.romarickc.reminder.domain.repository.WaterIntakeRepository
 import com.romarickc.reminder.presentation.MainActivity
@@ -23,31 +28,32 @@ import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.launch
-import java.util.*
+import java.util.Calendar
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 
 private const val NOTIFICATION_ID = 1
 
-class WaterReminderWorker(appContext: Context, workerParams: WorkerParameters) :
-    Worker(appContext, workerParams) {
-
+class WaterReminderWorker(
+    appContext: Context,
+    workerParams: WorkerParameters,
+) : Worker(appContext, workerParams) {
     private val notificationChannelId = "WaterReminder"
     private val notificationChannelName = "Water Reminder"
     private val notificationContentTitle = "Time to drink water!"
-    private val notificationContentTextList = listOf(
-        "Drink water and feel refreshed!",
-        "Stay hydrated and stay healthy!",
-        "Water is life. Keep yourself hydrated!",
-        "You've got this! Stay hydrated.",
-        "Keep calm and drink water.",
-        "Drinking water is the key to success.",
-        "Your body is thanking you for drinking water.",
-        "Stay hydrated and feel the difference.",
-        "Good job staying hydrated!",
-        "Keep sipping! You're doing great."
-    )
-
+    private val notificationContentTextList =
+        listOf(
+            "Drink water and feel refreshed!",
+            "Stay hydrated and stay healthy!",
+            "Water is life. Keep yourself hydrated!",
+            "You've got this! Stay hydrated.",
+            "Keep calm and drink water.",
+            "Drinking water is the key to success.",
+            "Your body is thanking you for drinking water.",
+            "Stay hydrated and feel the difference.",
+            "Good job staying hydrated!",
+            "Keep sipping! You're doing great.",
+        )
 
     @RequiresApi(Build.VERSION_CODES.TIRAMISU)
     override fun doWork(): Result {
@@ -55,39 +61,43 @@ class WaterReminderWorker(appContext: Context, workerParams: WorkerParameters) :
         // TODO: icon not working on buttons
         // Create the "drink" action
         val drinkIntent = Intent(applicationContext, DrinkWaterReceiver::class.java)
-        val drinkPendingIntent = PendingIntent.getBroadcast(
-            applicationContext,
-            NOTIFICATION_ID,
-            drinkIntent,
-            PendingIntent.FLAG_IMMUTABLE
-        )
-        val drinkAction = NotificationCompat.Action(
-            R.drawable.baseline_chevron_right_24,
-            "Drink",
-            drinkPendingIntent
-        )
+        val drinkPendingIntent =
+            PendingIntent.getBroadcast(
+                applicationContext,
+                NOTIFICATION_ID,
+                drinkIntent,
+                PendingIntent.FLAG_IMMUTABLE,
+            )
+        val drinkAction =
+            NotificationCompat.Action(
+                R.drawable.baseline_chevron_right_24,
+                "Drink",
+                drinkPendingIntent,
+            )
 
         // Create the "skip" action
         val skipIntent = Intent(applicationContext, SkipWaterReceiver::class.java)
         // skipIntent.action = "com.romarickc.reminder.SKIP_WATER"
-        val skipPendingIntent = PendingIntent.getBroadcast(
-            applicationContext,
-            NOTIFICATION_ID,
-            skipIntent,
-            PendingIntent.FLAG_IMMUTABLE
-        )
-        val skipAction = NotificationCompat.Action(
-            R.drawable.baseline_do_not_disturb_24,
-            "Skip",
-            skipPendingIntent
-        )
+        val skipPendingIntent =
+            PendingIntent.getBroadcast(
+                applicationContext,
+                NOTIFICATION_ID,
+                skipIntent,
+                PendingIntent.FLAG_IMMUTABLE,
+            )
+        val skipAction =
+            NotificationCompat.Action(
+                R.drawable.baseline_do_not_disturb_24,
+                "Skip",
+                skipPendingIntent,
+            )
 
         val pendingIntent =
             PendingIntent.getActivity(
                 applicationContext,
                 0,
                 Intent(applicationContext, MainActivity::class.java),
-                PendingIntent.FLAG_IMMUTABLE
+                PendingIntent.FLAG_IMMUTABLE,
             )
 
         val notificationContentText =
@@ -95,7 +105,8 @@ class WaterReminderWorker(appContext: Context, workerParams: WorkerParameters) :
 
         // Create the notification
         val notificationBuilder =
-            NotificationCompat.Builder(applicationContext, notificationChannelId)
+            NotificationCompat
+                .Builder(applicationContext, notificationChannelId)
                 .setContentTitle(notificationContentTitle)
                 .setContentText(notificationContentText)
                 .setSmallIcon(R.drawable.baseline_water_drop_24)
@@ -107,11 +118,12 @@ class WaterReminderWorker(appContext: Context, workerParams: WorkerParameters) :
                 .setAutoCancel(true)
 
         // create channel
-        val notificationChannel = NotificationChannel(
-            notificationChannelId,
-            notificationChannelName,
-            NotificationManager.IMPORTANCE_DEFAULT
-        )
+        val notificationChannel =
+            NotificationChannel(
+                notificationChannelId,
+                notificationChannelName,
+                NotificationManager.IMPORTANCE_DEFAULT,
+            )
         val notificationManager =
             applicationContext.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
         notificationManager.createNotificationChannel(notificationChannel)
@@ -120,7 +132,7 @@ class WaterReminderWorker(appContext: Context, workerParams: WorkerParameters) :
         with(NotificationManagerCompat.from(applicationContext)) {
             if (ActivityCompat.checkSelfPermission(
                     applicationContext,
-                    Manifest.permission.POST_NOTIFICATIONS
+                    Manifest.permission.POST_NOTIFICATIONS,
                 ) != PackageManager.PERMISSION_GRANTED
             ) {
                 // Return failure for now, since we don't have the necessary permission
@@ -148,8 +160,11 @@ class WaterReminderWorker(appContext: Context, workerParams: WorkerParameters) :
     companion object {
         fun startPeriodicWork(context: Context) {
             // check if there were something enqueued
-            val workInfos = WorkManager.getInstance(context)
-                .getWorkInfosByTag("water_reminder_periodic_work").get()
+            val workInfos =
+                WorkManager
+                    .getInstance(context)
+                    .getWorkInfosByTag("water_reminder_periodic_work")
+                    .get()
             Log.i("worker infos", "$workInfos")
 
             if (workInfos.isEmpty()) {
@@ -163,18 +178,16 @@ class WaterReminderWorker(appContext: Context, workerParams: WorkerParameters) :
                     PeriodicWorkRequestBuilder<WaterReminderWorker>(1, TimeUnit.HOURS)
                         .setInitialDelay(1, TimeUnit.HOURS)
                         .setConstraints(
-                            Constraints.Builder().setRequiresBatteryNotLow(true).build()
-                        )
-                        .addTag("water_reminder_periodic_work") // set the tag here
+                            Constraints.Builder().setRequiresBatteryNotLow(true).build(),
+                        ).addTag("water_reminder_periodic_work") // set the tag here
                         .build()
 
                 // Enqueue the work request
                 WorkManager.getInstance(context).enqueueUniquePeriodicWork(
                     "water_reminder_periodic_work",
                     ExistingPeriodicWorkPolicy.CANCEL_AND_REENQUEUE,
-                    workRequest
+                    workRequest,
                 )
-
             } else {
                 // the list is not empty, do not
                 Log.i("worker infos", "Already enqueued. Skipping \n$workInfos")
@@ -183,9 +196,11 @@ class WaterReminderWorker(appContext: Context, workerParams: WorkerParameters) :
     }
 }
 
-
 class BootReceiverWorker : BroadcastReceiver() {
-    override fun onReceive(context: Context?, intent: Intent?) {
+    override fun onReceive(
+        context: Context?,
+        intent: Intent?,
+    ) {
         if (intent?.action == "android.intent.action.BOOT_COMPLETED") {
             WaterReminderWorker.startPeriodicWork(context!!)
         }
@@ -197,38 +212,48 @@ class DrinkWaterReceiver : BroadcastReceiver() {
     @Inject
     lateinit var repository: WaterIntakeRepository
 
-    private fun updatePeriodicWorkInterval(application: Context, interval: Long) {
+    private fun updatePeriodicWorkInterval(
+        application: Context,
+        interval: Long,
+    ) {
         Log.i("drink notif", "called")
         var workInfos =
-            WorkManager.getInstance(application)
-                .getWorkInfosByTag("water_reminder_periodic_work").get()
+            WorkManager
+                .getInstance(application)
+                .getWorkInfosByTag("water_reminder_periodic_work")
+                .get()
 
         Log.i("worker settings", "current cancelling and recreating $workInfos")
         val workRequest =
             PeriodicWorkRequestBuilder<WaterReminderWorker>(interval, TimeUnit.HOURS)
                 .setInitialDelay(interval, TimeUnit.HOURS)
                 .setConstraints(
-                    Constraints.Builder()
+                    Constraints
+                        .Builder()
                         .setRequiresBatteryNotLow(true)
-                        .build()
-                )
-                .addTag("water_reminder_periodic_work") // set the tag here
+                        .build(),
+                ).addTag("water_reminder_periodic_work") // set the tag here
                 .build()
 
         WorkManager.getInstance(application).enqueueUniquePeriodicWork(
             "water_reminder_periodic_work",
             ExistingPeriodicWorkPolicy.CANCEL_AND_REENQUEUE,
-            workRequest
+            workRequest,
         )
         workInfos =
-            WorkManager.getInstance(application)
-                .getWorkInfosByTag("water_reminder_periodic_work").get()
+            WorkManager
+                .getInstance(application)
+                .getWorkInfosByTag("water_reminder_periodic_work")
+                .get()
 
         Log.i("worker register intake", "new one -> $workInfos")
     }
 
     @OptIn(DelicateCoroutinesApi::class)
-    override fun onReceive(context: Context, intent: Intent) {
+    override fun onReceive(
+        context: Context,
+        intent: Intent,
+    ) {
         // Handle the "drink" action here
         Log.i("Notif receiver", "acked")
 
@@ -260,13 +285,16 @@ class DrinkWaterReceiver : BroadcastReceiver() {
 }
 
 class SkipWaterReceiver : BroadcastReceiver() {
-    override fun onReceive(context: Context, intent: Intent) {
+    override fun onReceive(
+        context: Context,
+        intent: Intent,
+    ) {
         // Handle the "skip" action here
         Log.i("Notif receiver", "skipped $context")
 
         /*context.startActivity(Intent(context.applicationContext, MainActivity::class.java).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
         Toast.makeText(context, "Skipped drinking water", Toast.LENGTH_SHORT).show()
-        */
+         */
         val notificationManager =
             context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
         notificationManager.cancel(NOTIFICATION_ID)

@@ -5,6 +5,6 @@ import androidx.room.PrimaryKey
 
 @Entity
 data class IntakeTarget(
-    @PrimaryKey val id: Int? = null,
-    val currentTarget: Int? = null
+    @PrimaryKey var id: Int? = null,
+    var currentTarget: Int? = null,
 )

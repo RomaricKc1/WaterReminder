@@ -8,34 +8,37 @@ import com.romarickc.reminder.domain.repository.WaterIntakeRepository
 import com.romarickc.reminder.presentation.utils.Constants
 import com.romarickc.reminder.presentation.utils.UiEvent
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
-class IntakeTargetViewModel @Inject constructor(
-    val repository: WaterIntakeRepository
-) : ViewModel() {
-    private val _uiEvent = MutableSharedFlow<UiEvent>()
-    val uiEvent = _uiEvent.asSharedFlow()
+class IntakeTargetViewModel
+    @Inject
+    constructor(
+        val repository: WaterIntakeRepository,
+    ) : ViewModel() {
+        private val _uiEvent = MutableSharedFlow<UiEvent>()
+        val uiEvent = _uiEvent.asSharedFlow()
 
-    var currentTarget = repository.getTarget(1)
+        var currentTarget = repository.getTarget(1)
 
-    init {
-        viewModelScope.launch {
-            repository.insertTarget(Constants.RECOMMENDED_INTAKE)
+        init {
+            viewModelScope.launch {
+                repository.insertTarget(Constants.RECOMMENDED_INTAKE)
+            }
         }
-    }
 
-    fun onEvent(event: IntakeTargetEvents) {
-        when (event) {
-            is IntakeTargetEvents.OnValueChange -> {
-                viewModelScope.launch {
-                    repository.updateTarget(IntakeTarget(1, event.q))
-                    Log.i("targetdb", "updated")
-                    _uiEvent.emit(UiEvent.PopBackStack)
+        fun onEvent(event: IntakeTargetEvents) {
+            when (event) {
+                is IntakeTargetEvents.OnValueChange -> {
+                    viewModelScope.launch {
+                        repository.updateTarget(IntakeTarget(1, event.q))
+                        Log.i("targetdb", "updated")
+                        _uiEvent.emit(UiEvent.PopBackStack)
+                    }
                 }
             }
         }
     }
-}

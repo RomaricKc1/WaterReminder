@@ -1,0 +1,68 @@
+name: Build Release
+
+on:
+  push:
+    branches: ["main"]
+  pull_request:
+    branches: ["main"]
+
+  workflow_dispatch:
+
+jobs:
+  build:
+    name: "Main build"
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: set up JDK
+        uses: actions/setup-java@v4
+        with:
+          java-version: 23
+          distribution: "temurin"
+
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Build release APK
+        run: ./gradlew assembleRelease
+
+      - name: Run gradle lint
+        run: |
+          ./gradlew lint
+
+      - name: Upload release APK artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: android-release
+          path: app/build/outputs/apk/release/*.apk
+
+      - name: Upload lint details
+        uses: actions/upload-artifact@v4
+        with:
+          name: lint-details-html
+          path: app/build/reports/lint-results-*.html
+
+  lint_ktlint:
+    name: Ktlint lint
+    needs: build
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: read
+      packages: read
+      statuses: write
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Super-linter
+        uses: super-linter/super-linter@v8.0.0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          VALIDATE_KOTLIN: true
+          DISABLE_ERRORS: false

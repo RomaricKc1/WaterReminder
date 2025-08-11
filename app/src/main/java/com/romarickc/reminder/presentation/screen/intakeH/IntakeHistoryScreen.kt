@@ -8,26 +8,40 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.rounded.TrendingUp
+import androidx.compose.material.icons.automirrored.rounded.TrendingUp
 import androidx.compose.material.icons.rounded.Water
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.input.rotary.onRotaryScrollEvent
-import androidx.compose.ui.tooling.preview.Devices
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.wear.compose.material.*
+import androidx.wear.compose.foundation.lazy.ScalingLazyColumn
+import androidx.wear.compose.foundation.lazy.ScalingLazyListState
+import androidx.wear.compose.foundation.lazy.items
+import androidx.wear.compose.foundation.lazy.rememberScalingLazyListState
+import androidx.wear.compose.material.AppCard
+import androidx.wear.compose.material.Chip
+import androidx.wear.compose.material.ChipDefaults
+import androidx.wear.compose.material.Icon
+import androidx.wear.compose.material.ListHeader
+import androidx.wear.compose.material.MaterialTheme
+import androidx.wear.compose.material.PositionIndicator
+import androidx.wear.compose.material.Scaffold
+import androidx.wear.compose.material.Text
+import androidx.wear.compose.material.TimeText
+import androidx.wear.compose.material.Vignette
+import androidx.wear.compose.material.VignettePosition
 import androidx.wear.compose.navigation.SwipeDismissableNavHost
 import androidx.wear.compose.navigation.composable
 import androidx.wear.compose.navigation.rememberSwipeDismissableNavController
+import androidx.wear.tooling.preview.devices.WearDevices
 import com.romarickc.reminder.domain.model.WaterIntake
 import com.romarickc.reminder.presentation.theme.MyBlue
 import com.romarickc.reminder.presentation.theme.ReminderTheme
@@ -37,8 +51,10 @@ import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.time.Instant
 import java.time.ZonedDateTime
-import java.util.*
+import java.util.Date
+import java.util.Locale
 
+@Suppress("ktlint:standard:function-naming")
 @Composable
 fun IntakeHistoryScreen(
     viewModel: IntakeHistoryViewModel = hiltViewModel(),
@@ -58,14 +74,14 @@ fun IntakeHistoryScreen(
         }
     })
 
-    IntakeHistoryContent(intakes = intakes, viewModel::onEvent)
+    IntakeHistoryContent(intakes = intakes)
 }
 
 fun getTimeAgo(timestamp: Long): String {
     // TODO, implement leap year version also
     val currentTime = Instant.now().toEpochMilli()
     val timeDiff = (currentTime - timestamp) / 1000
-    //timeDiff in s
+    // timeDiff in s
     return when {
         timeDiff < 60 -> "Just now"
         timeDiff < 3600 -> "${timeDiff / 60}m ago" // less than an hour (59m)
@@ -82,52 +98,54 @@ fun getTimeTxt(timestamp: Long): String {
     return dateFormat.format(date)
 }
 
-@OptIn(ExperimentalComposeUiApi::class)
+@Suppress("ktlint:standard:function-naming")
 @Composable
-fun IntakeHistoryContent(
-    intakes: List<WaterIntake>,
-    onEvent: (IntakeHistoryEvents) -> Unit,
-) {
+fun IntakeHistoryContent(intakes: List<WaterIntake>) {
     val now = ZonedDateTime.now()
     val startOfDayTimestamp = now.toLocalDate().atStartOfDay(now.zone).toInstant()
     val today = Instant.now()
 
-    val filteredIntakes = intakes.asReversed().filter { intake ->
-        val objTimestamp = Instant.ofEpochMilli((intake.timestamp!!))
-        (objTimestamp == today) || (objTimestamp.isBefore(today) && objTimestamp.isAfter(
-            startOfDayTimestamp
-        ))
-    }
+    val filteredIntakes =
+        intakes.asReversed().filter { intake ->
+            val objTimestamp = Instant.ofEpochMilli((intake.timestamp!!))
+            (objTimestamp == today) ||
+                (
+                    objTimestamp.isBefore(today) &&
+                        objTimestamp.isAfter(
+                            startOfDayTimestamp,
+                        )
+                )
+        }
     val scalingLazyListState: ScalingLazyListState = rememberScalingLazyListState()
 
     val navController2 = rememberSwipeDismissableNavController()
 
     SwipeDismissableNavHost(
         navController = navController2,
-        startDestination = Routes.IntakeHistory
+        startDestination = Routes.INTAKE_HISTORY,
     ) {
-        composable(Routes.IntakeHistory) {
+        composable(Routes.INTAKE_HISTORY) {
             Scaffold(
                 timeText = { TimeText() },
                 vignette = { Vignette(vignettePosition = VignettePosition.TopAndBottom) },
-                positionIndicator = { PositionIndicator(scalingLazyListState = scalingLazyListState) }
+                positionIndicator = { PositionIndicator(scalingLazyListState = scalingLazyListState) },
             ) {
                 val coroutineScope = rememberCoroutineScope()
                 val focusRequester = remember { FocusRequester() }
-                LaunchedEffect(Unit){focusRequester.requestFocus()}
+                LaunchedEffect(Unit) { focusRequester.requestFocus() }
 
                 ScalingLazyColumn(
-                    modifier = Modifier
-                        .onRotaryScrollEvent {
-                            coroutineScope.launch {
-                                scalingLazyListState.scrollBy(it.verticalScrollPixels)
-                                scalingLazyListState.animateScrollBy(0f)
-                            }
-                            true
-                        }
-                        .focusRequester(focusRequester)
-                        .focusable()
-                        .fillMaxSize(),
+                    modifier =
+                        Modifier
+                            .onRotaryScrollEvent {
+                                coroutineScope.launch {
+                                    scalingLazyListState.scrollBy(it.verticalScrollPixels)
+                                    scalingLazyListState.animateScrollBy(0f)
+                                }
+                                true
+                            }.focusRequester(focusRequester)
+                            .focusable()
+                            .fillMaxSize(),
                     state = scalingLazyListState,
                     verticalArrangement = Arrangement.Center,
                 ) {
@@ -143,17 +161,18 @@ fun IntakeHistoryContent(
                             label = { Text(text = "See graph") },
                             icon = {
                                 Icon(
-                                    imageVector = Icons.Rounded.TrendingUp,
+                                    imageVector = Icons.AutoMirrored.Rounded.TrendingUp,
                                     contentDescription = "triggers graph intakes",
                                 )
                             },
-                            colors = ChipDefaults.chipColors(
-                                backgroundColor = MyBlue
-                            ),
+                            colors =
+                                ChipDefaults.chipColors(
+                                    backgroundColor = MyBlue,
+                                ),
                             onClick = {
-                                navController2.navigate(Routes.SeeIntakeGraph)
+                                navController2.navigate(Routes.SEE_INTAKE_GRAPH)
                                 // onEvent(IntakeHistoryEvents.OnSeeIntakeGraphClick)
-                            }
+                            },
                         )
                     }
 
@@ -164,11 +183,12 @@ fun IntakeHistoryContent(
                     }
 
                     items(filteredIntakes) { intake ->
-                        intake.timestamp?.let { getTimeAgo(it) }
+                        intake.timestamp
+                            ?.let { getTimeAgo(it) }
                             ?.let {
                                 SimpleCard(
                                     time = it,
-                                    title = getTimeTxt(intake.timestamp.toLong())
+                                    title = getTimeTxt(intake.timestamp!!.toLong()),
                                 )
                             }
                         /*?.let {
@@ -190,7 +210,7 @@ fun IntakeHistoryContent(
                 }
             }
         }
-        composable(Routes.SeeIntakeGraph){
+        composable(Routes.SEE_INTAKE_GRAPH) {
             SeeIntakeGraphScreen(onPopBackStack = {
                 navController2.popBackStack()
             })
@@ -198,14 +218,18 @@ fun IntakeHistoryContent(
     }
 }
 
+@Suppress("ktlint:standard:function-naming")
 @Composable
-fun SimpleCard(time: String, title: String) {
+fun SimpleCard(
+    time: String,
+    title: String,
+) {
     AppCard(
         appImage = {
             Icon(
                 imageVector = Icons.Rounded.Water,
                 contentDescription = "triggers nothing",
-                modifier = Modifier.requiredSize(15.dp)
+                modifier = Modifier.requiredSize(15.dp),
             )
         },
         appName = { Text("intake", color = MaterialTheme.colors.primary) },
@@ -214,29 +238,34 @@ fun SimpleCard(time: String, title: String) {
         modifier = Modifier.padding(2.dp),
         onClick = {},
     ) {
-
     }
 }
 
-@Preview(device = Devices.WEAR_OS_SMALL_ROUND, showSystemUi = true)
+@Suppress("ktlint:standard:function-naming")
+@Preview(device = WearDevices.SMALL_ROUND, showSystemUi = true)
 @Composable
 fun Preview() {
     ReminderTheme {
         IntakeHistoryContent(
-            intakes = listOf(
-                WaterIntake(
-                    0, 1674252311000
+            intakes =
+                listOf(
+                    WaterIntake(
+                        0,
+                        1674252311000,
+                    ),
+                    WaterIntake(
+                        0,
+                        1674251321000,
+                    ),
+                    WaterIntake(
+                        0,
+                        1674242331000,
+                    ),
+                    WaterIntake(
+                        0,
+                        1674152341000,
+                    ),
                 ),
-                WaterIntake(
-                    0, 1674251321000
-                ),
-                WaterIntake(
-                    0, 1674242331000
-                ),
-                WaterIntake(
-                    0, 1674152341000
-                )
-            )
-        ) {}
+        )
     }
 }

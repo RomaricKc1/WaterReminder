@@ -1,7 +1,5 @@
 package com.romarickc.reminder.presentation.screen.importExport
 
-
-import android.util.Log
 import androidx.compose.foundation.focusable
 import androidx.compose.foundation.gestures.animateScrollBy
 import androidx.compose.foundation.gestures.scrollBy
@@ -16,32 +14,32 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.input.rotary.onRotaryScrollEvent
-import androidx.compose.ui.tooling.preview.Devices
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.wear.compose.foundation.lazy.ScalingLazyColumn
+import androidx.wear.compose.foundation.lazy.ScalingLazyListState
+import androidx.wear.compose.foundation.lazy.rememberScalingLazyListState
 import androidx.wear.compose.material.Chip
 import androidx.wear.compose.material.Icon
 import androidx.wear.compose.material.ListHeader
 import androidx.wear.compose.material.MaterialTheme
 import androidx.wear.compose.material.PositionIndicator
 import androidx.wear.compose.material.Scaffold
-import androidx.wear.compose.material.ScalingLazyColumn
-import androidx.wear.compose.material.ScalingLazyListState
 import androidx.wear.compose.material.Text
 import androidx.wear.compose.material.TimeText
 import androidx.wear.compose.material.Vignette
 import androidx.wear.compose.material.VignettePosition
-import androidx.wear.compose.material.rememberScalingLazyListState
+import androidx.wear.tooling.preview.devices.WearDevices
 import com.romarickc.reminder.presentation.theme.ReminderTheme
 import com.romarickc.reminder.presentation.utils.UiEvent
 import kotlinx.coroutines.launch
 
+@Suppress("ktlint:standard:function-naming")
 @Composable
 fun ImportExportScreen(
     viewModel: ImportExportViewModel = hiltViewModel(),
@@ -62,12 +60,9 @@ fun ImportExportScreen(
     ImportExportContent(onEvent = viewModel::onEvent)
 }
 
-
-@OptIn(ExperimentalComposeUiApi::class)
+@Suppress("ktlint:standard:function-naming")
 @Composable
-fun ImportExportContent(
-    onEvent: (ImportExportEvents) -> Unit
-) {
+fun ImportExportContent(onEvent: (ImportExportEvents) -> Unit) {
     val scalingLazyListState: ScalingLazyListState = rememberScalingLazyListState()
     Scaffold(
         timeText = { TimeText() },
@@ -76,20 +71,20 @@ fun ImportExportContent(
     ) {
         val coroutineScope = rememberCoroutineScope()
         val focusRequester = remember { FocusRequester() }
-        LaunchedEffect(Unit){focusRequester.requestFocus()}
+        LaunchedEffect(Unit) { focusRequester.requestFocus() }
 
         ScalingLazyColumn(
-            modifier = Modifier
-                .onRotaryScrollEvent {
-                    coroutineScope.launch {
-                        scalingLazyListState.scrollBy(it.verticalScrollPixels)
-                        scalingLazyListState.animateScrollBy(0f)
-                    }
-                    true
-                }
-                .focusRequester(focusRequester)
-                .focusable()
-                .fillMaxSize(),
+            modifier =
+                Modifier
+                    .onRotaryScrollEvent {
+                        coroutineScope.launch {
+                            scalingLazyListState.scrollBy(it.verticalScrollPixels)
+                            scalingLazyListState.animateScrollBy(0f)
+                        }
+                        true
+                    }.focusRequester(focusRequester)
+                    .focusable()
+                    .fillMaxSize(),
             state = scalingLazyListState,
             verticalArrangement = Arrangement.Center,
         ) {
@@ -103,23 +98,25 @@ fun ImportExportContent(
             // import/export
             items(2) { index ->
                 Chip(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(top = 10.dp),
+                    modifier =
+                        Modifier
+                            .fillMaxWidth()
+                            .padding(top = 10.dp),
                     icon = {
                         when (index) {
+                            0 ->
+                                Icon(
+                                    imageVector = Icons.Rounded.CloudDownload,
+                                    contentDescription = "triggers Import action",
+                                    modifier = Modifier,
+                                )
 
-                            0 -> Icon(
-                                imageVector = Icons.Rounded.CloudDownload,
-                                contentDescription = "triggers Import action",
-                                modifier = Modifier
-                            )
-
-                            1 -> Icon(
-                                imageVector = Icons.Rounded.CloudUpload,
-                                contentDescription = "triggers Export action",
-                                modifier = Modifier
-                            )
+                            1 ->
+                                Icon(
+                                    imageVector = Icons.Rounded.CloudUpload,
+                                    contentDescription = "triggers Export action",
+                                    modifier = Modifier,
+                                )
                         }
                     },
                     label = {
@@ -128,7 +125,7 @@ fun ImportExportContent(
                                 Text(
                                     modifier = Modifier.fillMaxWidth(),
                                     color = MaterialTheme.colors.onPrimary,
-                                    text = "Import data"
+                                    text = "Import data",
                                 )
                             }
 
@@ -136,7 +133,7 @@ fun ImportExportContent(
                                 Text(
                                     modifier = Modifier.fillMaxWidth(),
                                     color = MaterialTheme.colors.onPrimary,
-                                    text = "Export data"
+                                    text = "Export data",
                                 )
                             }
                         }
@@ -151,15 +148,15 @@ fun ImportExportContent(
                                 onEvent(ImportExportEvents.OnExportclick(1))
                             }
                         }
-                    }
+                    },
                 )
             }
-
         }
     }
 }
 
-@Preview(device = Devices.WEAR_OS_SMALL_ROUND, showSystemUi = true)
+@Suppress("ktlint:standard:function-naming")
+@Preview(device = WearDevices.SMALL_ROUND, showSystemUi = true)
 @Composable
 fun Preview() {
     ReminderTheme {

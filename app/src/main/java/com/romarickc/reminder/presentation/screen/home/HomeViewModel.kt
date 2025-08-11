@@ -13,93 +13,81 @@ import java.time.ZonedDateTime
 import javax.inject.Inject
 
 @HiltViewModel
-class HomeViewModel @Inject constructor(
-    repository: WaterIntakeRepository
-) : ViewModel() {
+class HomeViewModel
+    @Inject
+    constructor(
+        repository: WaterIntakeRepository,
+    ) : ViewModel() {
+        private val now: ZonedDateTime = ZonedDateTime.now()
+        private val startOfDay: ZonedDateTime = now.toLocalDate().atStartOfDay(now.zone)
+        private val startOfDayTimestamp = startOfDay.toInstant().toEpochMilli()
 
-    private val now: ZonedDateTime = ZonedDateTime.now()
-    private val startOfDay: ZonedDateTime = now.toLocalDate().atStartOfDay(now.zone)
-    private val startOfDayTimestamp = startOfDay.toInstant().toEpochMilli()
+        var intakesToday = repository.getCountTgtThis(startOfDayTimestamp)
 
-    var intakesToday = repository.getCountTgtThis(startOfDayTimestamp)
+        private val _uiEvent = MutableSharedFlow<UiEvent>()
+        val uiEvent = _uiEvent.asSharedFlow()
 
-    private val _uiEvent = MutableSharedFlow<UiEvent>()
-    val uiEvent = _uiEvent.asSharedFlow()
-
-    fun onEvent(event: HomeScreenEvents) {
-        when (event) {
-            // register intake
-            is HomeScreenEvents.OnAddNewIntakeClick -> {
-                emitEvent(
-                    UiEvent.Navigate(
-                        route = Routes.RegIntake
+        fun onEvent(event: HomeScreenEvents) {
+            when (event) {
+                // register intake
+                is HomeScreenEvents.OnAddNewIntakeClick -> {
+                    emitEvent(
+                        UiEvent.Navigate(
+                            route = Routes.REGISTER_INTAKE,
+                        ),
                     )
-                )
-            }
+                }
 
-            // intake history
-            is HomeScreenEvents.OnIntakeHistory -> {
-                emitEvent(
-                    UiEvent.Navigate(
-                        route = Routes.IntakeHistory
+                // intake history
+                is HomeScreenEvents.OnIntakeHistory -> {
+                    emitEvent(
+                        UiEvent.Navigate(
+                            route = Routes.INTAKE_HISTORY,
+                        ),
                     )
-                )
-            }
+                }
 
-            // hydratation tips
-            is HomeScreenEvents.OnHydraTips -> {
-                emitEvent(
-                    UiEvent.Navigate(
-                        route = Routes.HydrationTips
+                // hydratation tips
+                is HomeScreenEvents.OnHydraTips -> {
+                    emitEvent(
+                        UiEvent.Navigate(
+                            route = Routes.HYDRATION_TIPS,
+                        ),
                     )
-                )
-            }
+                }
 
-            // set target
-            is HomeScreenEvents.OnSetTarget -> {
-                emitEvent(
-                    UiEvent.Navigate(
-                        route = Routes.SetTarget
+                // set target
+                is HomeScreenEvents.OnSetTarget -> {
+                    emitEvent(
+                        UiEvent.Navigate(
+                            route = Routes.SET_TARGET,
+                        ),
                     )
-                )
-            }
+                }
 
-            // notifs settings
-            is HomeScreenEvents.OnNotifSettings -> {
-                emitEvent(
-                    UiEvent.Navigate(
-                        route = Routes.NotifSettings
+                // notifs settings
+                is HomeScreenEvents.OnNotifSettings -> {
+                    emitEvent(
+                        UiEvent.Navigate(
+                            route = Routes.NOTIF_SETTINGS,
+                        ),
                     )
-                )
-            }
+                }
 
-            // import/export data
-            is HomeScreenEvents.OnImportExportData -> {
-                emitEvent(
-                    UiEvent.Navigate(
-                        route = Routes.ImportExport
+                // import/export data
+                is HomeScreenEvents.OnImportExportData -> {
+                    emitEvent(
+                        UiEvent.Navigate(
+                            route = Routes.IMPORT_EXPORT,
+                        ),
                     )
-                )
+                }
             }
+        }
 
-            else -> {}
+        private fun emitEvent(event: UiEvent) {
+            viewModelScope.launch {
+                _uiEvent.emit(event)
+            }
         }
     }
-
-    private fun emitEvent(event: UiEvent) {
-        viewModelScope.launch {
-            _uiEvent.emit(event)
-        }
-    }
-}
-
-
-
-
-
-
-
-
-
-
-

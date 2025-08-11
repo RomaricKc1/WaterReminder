@@ -7,9 +7,10 @@
     <string name="nothing_string">Totally nothing,\nWhat?, %1$s</string>
     <string name="lorem">Lorem ipsum est une suite de mots</string>
     <string name="water_intake">%1$s of %2$s (%3$sL) Glass</string>
+    <string name="water_intakes">%1$s of %2$s (%3$sL) Glasses</string>
     <string name="intake_history">intake_history</string>
     <string name="register_intake">register_intake</string>
-    <string name="hydration_tips">hydratation_tips</string>
+    <string name="hydration_tips">hydration_tips</string>
     <string name="notif_settings">notif_settings</string>
 
     <string name="water_reminder_tile_desc1">Road to target</string>

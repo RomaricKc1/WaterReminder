@@ -6,6 +6,6 @@ import androidx.room.PrimaryKey
 @Entity
 data class WaterIntake(
     @PrimaryKey(autoGenerate = true)
-    val id: Long? = null,
-    val timestamp: Long? = null
+    var id: Long? = null,
+    var timestamp: Long? = null,
 )

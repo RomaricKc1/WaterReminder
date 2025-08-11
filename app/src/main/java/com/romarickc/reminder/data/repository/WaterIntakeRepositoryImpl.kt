@@ -1,8 +1,8 @@
 package com.romarickc.reminder.data.repository
 
-import com.romarickc.reminder.data.waterIntake_database.IntakeTargetDao
-import com.romarickc.reminder.data.waterIntake_database.PreferencesDao
-import com.romarickc.reminder.data.waterIntake_database.WaterIntakeDao
+import com.romarickc.reminder.data.waterIntakeDatabase.IntakeTargetDao
+import com.romarickc.reminder.data.waterIntakeDatabase.PreferencesDao
+import com.romarickc.reminder.data.waterIntakeDatabase.WaterIntakeDao
 import com.romarickc.reminder.domain.model.IntakeTarget
 import com.romarickc.reminder.domain.model.Preferences
 import com.romarickc.reminder.domain.model.WaterIntake
@@ -18,13 +18,13 @@ class WaterIntakeRepositoryImpl(
     override fun getAllIntake(): Flow<List<WaterIntake>> = dao.getAllIntake()
 
     override fun getPeriodWaterIntake(
-        startTimestamp: Long, endTimestamp: Long
+        startTimestamp: Long,
+        endTimestamp: Long,
     ): Flow<List<WaterIntake>> = dao.getPeriodWaterIntake(startTimestamp, endTimestamp)
 
     override fun importFromFile(filePath: String) = dao.importFromFile(filePath)
 
-    override suspend fun getAllAndExportToFile(filePath: String) =
-        dao.getAllAndExportToFile(filePath)
+    override suspend fun getAllAndExportToFile(filePath: String) = dao.getAllAndExportToFile(filePath)
 
     override fun getCount(): Flow<Int> = dao.getCount()
 
@@ -34,9 +34,10 @@ class WaterIntakeRepositoryImpl(
 
     override suspend fun insertIntake() {
         val currentTime = Instant.now().toEpochMilli()
-        val intake = WaterIntake(
-            timestamp = currentTime,
-        )
+        val intake =
+            WaterIntake(
+                timestamp = currentTime,
+            )
         dao.insertIntake(waterIntake = intake)
     }
 
@@ -50,10 +51,11 @@ class WaterIntakeRepositoryImpl(
 
     // new dao2
     override suspend fun insertTarget(target: Int) {
-        val intarget = IntakeTarget(
-            id = 1,
-            currentTarget = target
-        )
+        val intarget =
+            IntakeTarget(
+                id = 1,
+                currentTarget = target,
+            )
         dao2.insertTarget(intarget)
     }
 
@@ -65,14 +67,16 @@ class WaterIntakeRepositoryImpl(
 
     // preferences
     override suspend fun insertNotifPref(level: Int) {
-        val preferences = Preferences(
-            id = 1,
-            notifLevel = level
-        )
+        val preferences =
+            Preferences(
+                id = 1,
+                notifLevel = level,
+            )
         dao3.insertNotifPref(preferences)
     }
 
     override fun getNotifPref(id: Int): Flow<Int> = dao3.getNotifPref(id)
+
     override suspend fun updateNotifPref(preferences: Preferences) {
         dao3.updateNotifPref(preferences)
     }

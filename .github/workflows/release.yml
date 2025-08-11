@@ -1,0 +1,60 @@
+name: Draft Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "Version"
+        required: true
+jobs:
+  draft-release:
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: write
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: set up JDK
+        uses: actions/setup-java@v4
+        with:
+          java-version: 23
+          distribution: "temurin"
+          cache: "gradle"
+
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Build release APK
+        run: |
+          ./gradlew assembleRelease
+
+      - name: Signing APK
+        id: sign_app
+        uses: ilharp/sign-android-release@v2
+        with:
+          releaseDir: app/build/outputs/apk/release
+          signingKey: ${{ secrets.SIGN_KEY_BASE64 }}
+          keyAlias: ${{ secrets.KEY_ALIAS }}
+          keyStorePassword: ${{ secrets.KEYSTORE_PASSWD }}
+          keyPassword: ${{ secrets.KEY_PASSWD }}
+          buildToolsVersion: 35.0.0
+
+      - name: prepare .tar.xz
+        run: |
+          mkdir app-out
+          mv ${{ steps.sign_app.outputs.signedFile }} ./app-v${{ github.event.inputs.version }}-release-signed.apk
+          mv ./app-v${{ github.event.inputs.version }}-release-signed.apk ./app-out
+
+      - name: Create app tar
+        run: |
+          tar jcvf app-v${{ github.event.inputs.version }}.tar.xz app-out/*
+
+      - name: Draft release
+        uses: softprops/action-gh-release@v2
+        with:
+          draft: true
+          tag_name: v${{ github.event.inputs.version }}
+          files: app-v${{ github.event.inputs.version }}.tar.xz
+          fail_on_unmatched_files: true

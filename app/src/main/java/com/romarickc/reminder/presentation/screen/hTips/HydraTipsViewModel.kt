@@ -11,19 +11,20 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
-class HydraTipsViewModel @Inject constructor(
-    private val repository: WaterIntakeRepository
-) : ViewModel() {
-    private val _uiEvent = MutableSharedFlow<UiEvent>()
-    val uiEvent = _uiEvent.asSharedFlow()
+class HydraTipsViewModel
+    @Inject
+    constructor(
+        private val repository: WaterIntakeRepository,
+    ) : ViewModel() {
+        private val _uiEvent = MutableSharedFlow<UiEvent>()
+        val uiEvent = _uiEvent.asSharedFlow()
 
-    fun onEvent(event: HydraTipsViewModel) {
+        fun onEvent() {
+        }
 
-    }
-
-    private fun emitEvent(event: UiEvent) {
-        viewModelScope.launch {
-            _uiEvent.emit(event)
+        private fun emitEvent(event: UiEvent) {
+            viewModelScope.launch {
+                _uiEvent.emit(event)
+            }
         }
     }
-}

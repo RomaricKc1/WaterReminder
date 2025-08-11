@@ -5,6 +5,6 @@ import androidx.room.PrimaryKey
 
 @Entity
 data class Preferences(
-    @PrimaryKey val id: Int? = null,
-    val notifLevel: Int? = null
+    @PrimaryKey var id: Int? = null,
+    var notifLevel: Int? = null,
 )
