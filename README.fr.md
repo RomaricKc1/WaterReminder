@@ -2,7 +2,7 @@
 
 Rappel d'Hydratation, conçue pour les montres connectée sous `wear-os` en utilisant la technologie `jetpack compose`, vous aide chaque jour à rester `hydraté`.
 
-Vous recevrez des `notifications` de `08:00 à 22:59` directement sur votre montre sans avoir besoin de quelconque connexion à votre smartphone, ni d'avoir à reglé des alarmes manuellement.
+Vous recevrez des `notifications` de `08:00 à 22:59` directement sur votre montre sans avoir besoin de quelconque connexion à votre smartphone, ni d'avoir à regler des alarmes manuellement.
 
 **[English][en]** - [Français][fr]
 

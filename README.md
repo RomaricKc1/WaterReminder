@@ -49,3 +49,6 @@ And `voilà`!
 | <img src="./img/home.png" alt="home" width="200"/> | <img src="./img/notif.png" alt="notification" width="200"/> | <img src="./img/hist1.png" alt="History" width="200"/> | <img src="./img/hist2.png" alt="hist 2" width="200"/> | <img src="./img/tile1.png" alt="tile 1" width="200"/> | <img src="./img/tile2.png" alt="tile 2" width="200"/> |
 
 More in the [`./img`](./img/) folder.
+
+[en]: README.md
+[fr]: README.fr.md
