@@ -47,10 +47,10 @@
         </activity>
 
         <service
-            android:name=".presentation.tile.WaterReminderTile"
-            android:description="@string/water_reminder_tile_desc1"
+            android:name=".presentation.tiles.WaterReminderTileZen"
+            android:description="@string/tileZen_desc"
             android:exported="true"
-            android:label="@string/water_reminder_tile_lbl1"
+            android:label="@string/tileZen_lbl"
             android:foregroundServiceType="dataSync"
             android:permission="com.google.android.wearable.permission.BIND_TILE_PROVIDER">
             <intent-filter>
@@ -64,10 +64,10 @@
         </service>
 
         <service
-            android:name=".presentation.tile.WaterReminderTile2"
-            android:description="@string/water_reminder_tile_desc2"
+            android:name=".presentation.tiles.WaterReminderTileDetailed"
+            android:description="@string/tileDetailed_desc"
             android:exported="true"
-            android:label="@string/water_reminder_tile_lbl2"
+            android:label="@string/tileDetailed_lbl"
             android:foregroundServiceType="dataSync"
             android:permission="com.google.android.wearable.permission.BIND_TILE_PROVIDER">
             <intent-filter>
@@ -81,14 +81,14 @@
         </service>
 
         <receiver
-            android:name=".presentation.utils.SkipWaterReceiver"
+            android:name=".commons.SkipWaterReceiver"
             android:enabled="true" />
         <receiver
-            android:name=".presentation.utils.DrinkWaterReceiver"
+            android:name=".commons.DrinkWaterReceiver"
             android:enabled="true" />
 
         <receiver
-            android:name=".presentation.utils.BootReceiverWorker"
+            android:name=".commons.BootReceiverWorker"
             android:enabled="true"
             android:exported="false">
             <intent-filter>

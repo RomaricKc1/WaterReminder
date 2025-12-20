@@ -1,23 +1,131 @@
 <resources>
-    <string name="app_name">Reminder</string>
-    <!--
-    This string is used for square devices and overridden by hello_world in
-    values-round/strings.xml for round devices.
-    -->
-    <string name="nothing_string">Totally nothing,\nWhat?, %1$s</string>
-    <string name="lorem">Lorem ipsum est une suite de mots</string>
-    <string name="water_intake">%1$s of %2$s (%3$sL) Glass</string>
-    <string name="water_intakes">%1$s of %2$s (%3$sL) Glasses</string>
-    <string name="intake_history">intake_history</string>
-    <string name="register_intake">register_intake</string>
-    <string name="hydration_tips">hydration_tips</string>
-    <string name="notif_settings">notif_settings</string>
-
-    <string name="water_reminder_tile_desc1">Road to target</string>
-    <string name="water_reminder_tile_desc2">Details and registering</string>
-    <string name="water_reminder_tile_lbl1">Water Intake progress</string>
-    <string name="water_reminder_tile_lbl2">Water Intake details</string>
-
     <color name="primary_color">#CB2E63</color>
 
+
+    <!-- Main-->
+    <string name="app_name">Reminder</string>
+    <string name="version">Version %1$S</string>
+    <string name="source_code">Source Code</string>
+    <string name="version_short">v%1$S</string>
+
+    <!-- Homepage-->
+    <string name="water_intake">%1$s of %2$s (%3$.2fL) Glass</string>
+    <string name="water_intakes">%1$s of %2$s (%3$.2fL) Glasses</string>
+    <string name="header_main_title">Water Reminder</string>
+    <string name="permission_not_granted_no_notif">Permission not granted, no notification :(</string>
+    <string name="target">Target</string>
+    <string name="daily_intake">Daily intake</string>
+    <string name="intake_history">Intake History</string>
+    <string name="register_intake">Register Intake</string>
+    <string name="hydration_tips">Hydration Tips</string>
+    <string name="tips">Tips</string>
+    <string name="personalization">Personalization</string>
+    <string name="settings">Settings</string>
+    <string name="notif_settings">Notifications Settings</string>
+    <string name="set_target">Set Target</string>
+    <string name="import_export">Import/Export data</string>
+    <string name="misc">Misc</string>
+    <string name="about">About</string>
+
+    <!-- Tiles-->
+    <string name="tileZen_desc">Road to target</string>
+    <string name="tileZen_lbl">Water Intake progress</string>
+    <string name="tileDetailed_desc">Details and registering</string>
+    <string name="tileDetailed_lbl">Water Intake details</string>
+
+    <!-- Import export-->
+    <string name="import_export_data">Import/Export data</string>
+    <string name="import_data">Import data</string>
+    <string name="export_data">Export data</string>
+    <string name="export_success">Export Successful</string>
+    <string name="import_success">Import Successful</string>
+    <string name="export_failure">Export Failed</string>
+    <string name="import_failure">Import Failure</string>
+
+    <!-- Graph views-->
+    <string name="days_view_graph">Days view</string>
+    <string name="months_view_graph">Months view</string>
+    <string name="top_intakes">Top: %1$d intakes</string>
+    <string name="top_intake">Top: %1$d intake</string>
+    <string name="last_12_months">Last 12 months</string>
+    <string name="last_x_days">Last %1$d days</string>
+    <string name="see_graph_days">See graph days</string>
+    <string name="see_graph_months">See graph months</string>
+
+    <!-- Register intake-->
+    <string name="removed_last">Removed Last</string>
+    <string name="registered">Registered</string>
+
+    <!-- Notif settings-->
+    <string name="every_hour">Every Hour</string>
+    <string name="every_3_hours">Every 3 Hours</string>
+    <string name="deactivated">Deactivated</string>
+
+    <!-- Lang settings-->
+    <string name="lang_en">English</string>
+    <string name="lang_fr">French</string>
+    <string name="lang_settings">Language Settings</string>
+
+    <!-- Intake history cards-->
+    <string name="intakes_today">Intakes Today</string>
+    <string name="intake">Intake</string>
+    <string name="just_now">Just Now</string>
+    <string name="year_ago">%1$d year ago</string>
+    <string name="minute_ago">%1$d min ago</string>
+    <string name="hour_ago">%1$d hour ago</string>
+    <string name="day_ago">%1$d day ago</string>
+    <string name="years_ago">%1$d years ago</string>
+    <string name="minutes_ago">%1$d mins ago</string>
+    <string name="hours_ago">%1$d hours ago</string>
+    <string name="days_ago">%1$d days ago</string>
+
+    <!-- Permissions-->
+    <string name="permission_required">Permission required</string>
+    <string name="explain_notif_importance">Notification permission is required to send you the reminders.</string>
+    <string name="user_perm_deny">It looks like you permanently denied. You\'ll have to go to the app settings to enable it if you want.</string>
+    <string name="allow">Allow</string>
+    <string name="deny">Deny</string>
+    <string name="got_it">Understood</string>
+    <string name="navigate_to_settings">Go to settings</string>
+
+    <!-- Action notification-->
+    <string name="open_app">Open the app</string>
+    <string name="skip">Skip</string>
+    <string name="drink">Drink</string>
+    <string name="skipped">Skipped drinking</string>
+
+    <!-- Notifs-->
+    <string name="notif_channel_name">Water Reminder</string>
+    <string name="notif_title">Time to drink water!</string>
+    <string name="notif_text1">Drink water and feel refreshed!</string>
+    <string name="notif_text2">Stay hydrated and stay healthy!</string>
+    <string name="notif_text3">Water is life. Keep yourself hydrated!</string>
+    <string name="notif_text4">You\'ve got this! Stay hydrated.</string>
+    <string name="notif_text5">Keep calm and drink water.</string>
+    <string name="notif_text6">Drinking water is the key to success.</string>
+    <string name="notif_text7">Your body is thanking you for drinking water.</string>
+    <string name="notif_text8">Stay hydrated and feel the difference.</string>
+    <string name="notif_text9">Good job staying hydrated!</string>
+    <string name="notif_text10">Keep sipping! You\'re doing great.</string>
+
+    <!-- Tips-->
+    <string name="tip">Tip</string>
+    <string name="tip1_title">Start your day with a glass of water</string>
+    <string name="tip1_desc">Drinking a glass of water first thing in the morning can help kickstart your hydration for the day.</string>
+    <string name="tip2_title">Carry a water bottle with you</string>
+    <string name="tip2_desc">Having a water bottle with you at all times can help remind you to drink water throughout the day.</string>
+    <string name="tip3_title">Drink water before and after exercise</string>
+    <string name="tip3_desc">Staying hydrated before and after exercise can help you perform at your best and reduce the risk of dehydration.</string>
+    <string name="tip4_title">Eat water-rich foods</string>
+    <string name="tip4_desc">Foods like watermelon, cucumbers, and strawberries can help you stay hydrated and add variety to your diet.</string>
+    <string name="tip5_title">Avoid sugary drinks</string>
+    <string name="tip5_desc">Sugary drinks can dehydrate you and add unnecessary calories to your diet.</string>
+    <string name="tip6_title">Drink water when you feel hungry</string>
+    <string name="tip6_desc">Sometimes thirst can be mistaken for hunger, so try drinking water before reaching for a snack.</string>
+    <string name="tip7_title">Drink water when you feel tired</string>
+    <string name="tip7_desc">Fatigue can be a sign of dehydration, so try drinking water instead of reaching for caffeine or sugar.</string>
+    <string name="tip8_title">Flavor your water</string>
+    <string name="tip8_desc">Adding fruit, herbs, or a splash of juice to your water can make it more appealing and help you drink more.</string>
+    <string name="tip9_title">Drink water with meals</string>
+    <string name="tip9_desc">Drinking water with meals can help aid digestion and keep you hydrated throughout the day.</string>
 </resources>

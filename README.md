@@ -4,6 +4,8 @@ WaterReminder, built for `wear-os` devices using `jetpack compose`, to help you 
 
 Receive `notifications` from `8am to 10:59 pm` on your watch without the need to have a phone connected to it, nor have to set up alarms manually.
 
+**[English][en]** - [Français][fr]
+
 ## Features
 
 - [x] built-in notifications

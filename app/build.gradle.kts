@@ -1,3 +1,4 @@
+import org.gradle.api.tasks.testing.logging.TestExceptionFormat
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 plugins {
@@ -19,7 +20,9 @@ android {
         targetSdk = 32
         versionCode = 2
         versionName = "1.1"
+        version = "1.1"
         vectorDrawables.useSupportLibrary = true
+        testInstrumentationRunner = "com.romarickc.reminder.HiltTestRunner"
     }
 
     buildTypes {
@@ -54,6 +57,7 @@ android {
     buildFeatures {
         compose = true
         viewBinding = true
+        buildConfig = true
     }
 
     packaging {
@@ -63,15 +67,24 @@ android {
     }
 }
 
+tasks.withType<Test> {
+    this.testLogging {
+        this.showStandardStreams = true
+        this.exceptionFormat = TestExceptionFormat.FULL
+        this.events("passed", "failed", "skipped", "started")
+    }
+}
+
 dependencies {
     ksp(libs.room.compiler)
     kapt(libs.hilt.android.compiler)
     kapt(libs.hilt.compiler)
 
+    implementation(libs.rules)
     implementation(libs.wear.tooling.preview)
     implementation(libs.compose.ui)
     implementation(libs.compose.ui.tooling.preview)
-    implementation(libs.compose.fund)
+    implementation(libs.compose.found)
     implementation(libs.compose.material)
     implementation(libs.compose.foundation)
     implementation(libs.compose.navigation)
@@ -101,8 +114,16 @@ dependencies {
     implementation(libs.work.runtime)
     implementation(libs.accompanist.permissions)
 
-    androidTestImplementation(libs.compose.ui.test.junit4)
-    androidTestImplementation(libs.compose.ui.test.manifest)
+    implementation(libs.runner)
+    implementation(libs.test.core)
 
     debugImplementation(libs.compose.ui.tooling)
+
+    testImplementation(libs.kotlin.test)
+    testImplementation(libs.kotlinx.coroutines.test)
+
+    androidTestImplementation(libs.compose.ui.test.junit4)
+    androidTestImplementation(libs.compose.ui.test.manifest)
+    androidTestImplementation(libs.kotlin.test)
+    androidTestImplementation(libs.hilt.android.testing)
 }

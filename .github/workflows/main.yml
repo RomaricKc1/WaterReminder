@@ -1,4 +1,4 @@
-name: Build Release
+name: Build and test
 
 on:
   push:
@@ -16,21 +16,18 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v4
+
       - name: set up JDK
         uses: actions/setup-java@v4
         with:
           java-version: 23
           distribution: "temurin"
+          cache: gradle
 
-      - name: Setup Android SDK
-        uses: android-actions/setup-android@v3
-
-      - name: Build release APK
-        run: ./gradlew assembleRelease
-
-      - name: Run gradle lint
-        run: |
-          ./gradlew lint
+      - name: Build release lint and test APK
+        run: ./gradlew assembleRelease lint testReleaseUnitTest --profile
 
       - name: Upload release APK artifact
         uses: actions/upload-artifact@v4
@@ -38,11 +35,14 @@ jobs:
           name: android-release
           path: app/build/outputs/apk/release/*.apk
 
-      - name: Upload lint details
+      - name: Upload lint gradle and tests reports
         uses: actions/upload-artifact@v4
         with:
-          name: lint-details-html
-          path: app/build/reports/lint-results-*.html
+          name: lint-and-gradle-plus-tests-reports-html
+          path: |
+            app/build/reports/lint-results-*.html
+            app/build/reports/tests/testReleaseUnitTest/*.html
+            build/reports/profile/profile-*.html
 
   lint_ktlint:
     name: Ktlint lint
@@ -66,3 +66,77 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           VALIDATE_KOTLIN: true
           DISABLE_ERRORS: false
+
+  androidTest:
+    runs-on: ubuntu-latest
+    name: "androidTest API ${{ matrix.api-level }}"
+    # needs: build
+    timeout-minutes: 55
+    strategy:
+      fail-fast: false
+      matrix:
+        api-level: [33]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v4
+
+      - name: set up JDK
+        uses: actions/setup-java@v4
+        with:
+          java-version: 23
+          distribution: "temurin"
+          cache: gradle
+
+      - name: Enable KVM group perms
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+          ls /dev/kvm
+
+      - name: AVD cache
+        uses: actions/cache@v4
+        id: avd-cache
+        with:
+          path: |
+            ~/.android/avd/*
+            ~/.android/adb*
+          key: avd-${{ matrix.api-level }}
+
+      - name: create AVD and generate snapshot for caching
+        if: steps.avd-cache.outputs.cache-hit != 'true'
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          target: android-wear
+          arch: x86_64
+          api-level: ${{ matrix.api-level }}
+          force-avd-creation: false
+          emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
+          disable-animations: false
+          script: echo "Generated AVD snapshot for caching."
+
+      - name: Build and run instrumentation tests
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          target: android-wear
+          api-level: ${{ matrix.api-level }}
+          force-avd-creation: false
+          emulator-options: -no-snapshot-save -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
+          arch: x86_64
+          disable-animations: true
+          disk-size: 6000M
+          heap-size: 600M
+          ram-size: 2048M
+          cores: 4
+          script: ./gradlew connectedAndroidTest --daemon
+
+      - name: Upload test reports
+        uses: actions/upload-artifact@v4
+        with:
+          name: instrumentation-test-reports-html
+          path: |
+            app/build/reports/androidTests/connected/debug/*.html
+            app/build/reports/androidTests/connected/release/*.html
