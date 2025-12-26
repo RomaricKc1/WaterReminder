@@ -4,10 +4,10 @@ import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
-    alias(libs.plugins.hilt)
     alias(libs.plugins.kotlin.compose)
-    alias(libs.plugins.ksp)
+    alias(libs.plugins.hilt)
     alias(libs.plugins.kapt)
+    alias(libs.plugins.ksp)
 }
 
 android {
@@ -17,7 +17,7 @@ android {
     defaultConfig {
         applicationId = "com.romarickc.reminder"
         minSdk = 30
-        targetSdk = 32
+        targetSdk = 36
         versionCode = 3
         versionName = "1.2"
         version = "1.2"
@@ -27,8 +27,8 @@ android {
 
     buildTypes {
         release {
-            isMinifyEnabled = false
-            isDebuggable = true
+            isMinifyEnabled = true
+            isDebuggable = false
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro",
@@ -48,7 +48,7 @@ android {
     }
 
     ksp {
-        arg("room.schemaLocation", "$projectDir/database_schemas")
+        // arg("room.schemaLocation", "$projectDir/database_schemas")
     }
 
     kapt {
@@ -77,42 +77,44 @@ tasks.withType<Test> {
 
 dependencies {
     ksp(libs.room.compiler)
+
     kapt(libs.hilt.android.compiler)
     kapt(libs.hilt.compiler)
+    kapt(libs.kotlin.metadata.jvm)
 
-    implementation(libs.rules)
-    implementation(libs.wear.tooling.preview)
+    implementation(libs.accompanist.permissions)
+    implementation(libs.activity.compose)
+    implementation(libs.coil.compose)
+    implementation(libs.compose.found)
+    implementation(libs.compose.foundation)
+    implementation(libs.compose.material)
+    implementation(libs.compose.navigation)
     implementation(libs.compose.ui)
     implementation(libs.compose.ui.tooling.preview)
-    implementation(libs.compose.found)
-    implementation(libs.compose.material)
-    implementation(libs.compose.foundation)
-    implementation(libs.compose.navigation)
-    implementation(libs.room.runtime)
-    implementation(libs.room.ktx)
+    implementation(libs.core.ktx)
+    implementation(libs.datastore.preferences)
+    implementation(libs.guava)
     implementation(libs.hilt.android)
+    implementation(libs.hilt.lifecycle.viewmodel)
+    implementation(libs.hilt.work)
     implementation(libs.horologist.compose.tools)
     implementation(libs.horologist.tiles)
+    implementation(libs.legacy.v4)
+    implementation(libs.lifecycle.runtime.ktx)
+    implementation(libs.material)
     implementation(libs.material.icons.core)
     implementation(libs.material.icons.extended)
-    implementation(libs.material)
-    implementation(libs.core.ktx)
-    implementation(libs.play.service)
-    implementation(libs.perc.layout)
-    implementation(libs.legacy.v4)
-    implementation(libs.recyclerview)
-    implementation(libs.lifecycle.runtime.ktx)
-    implementation(libs.activity.compose)
     implementation(libs.navigation.ui.ktx)
-    implementation(libs.datastore.preferences)
-    implementation(libs.hilt.navigation.compose)
-    implementation(libs.hilt.work)
-    implementation(libs.wear)
-    implementation(libs.coil.compose)
+    implementation(libs.perc.layout)
+    implementation(libs.play.service)
+    implementation(libs.recyclerview)
+    implementation(libs.room.ktx)
+    implementation(libs.room.runtime)
+    implementation(libs.rules)
     implementation(libs.runtime.livedata)
-    implementation(libs.guava)
+    implementation(libs.wear)
+    implementation(libs.wear.tooling.preview)
     implementation(libs.work.runtime)
-    implementation(libs.accompanist.permissions)
 
     implementation(libs.runner)
     implementation(libs.test.core)
@@ -124,6 +126,6 @@ dependencies {
 
     androidTestImplementation(libs.compose.ui.test.junit4)
     androidTestImplementation(libs.compose.ui.test.manifest)
-    androidTestImplementation(libs.kotlin.test)
     androidTestImplementation(libs.hilt.android.testing)
+    androidTestImplementation(libs.kotlin.test)
 }

@@ -38,7 +38,7 @@ import com.romarickc.reminder.commons.Constants.LANG_FR
 import com.romarickc.reminder.commons.Constants.LANG_KEY
 import com.romarickc.reminder.commons.Constants.MIN_SEC
 import com.romarickc.reminder.commons.Constants.NOTIF_DISABLED_MODE
-import com.romarickc.reminder.commons.Constants.NOTIF_ONE_HOURS_MODE
+import com.romarickc.reminder.commons.Constants.NOTIF_ONE_HOUR_MODE
 import com.romarickc.reminder.commons.Constants.NOTIF_THREE_HOURS_MODE
 import com.romarickc.reminder.commons.Constants.ONE_HOUR_INTERVAL
 import com.romarickc.reminder.commons.Constants.SHARED_DATA
@@ -234,7 +234,7 @@ suspend fun reSchedPeriodicWork(
             // else notification disabled, so I don't care
         }
 
-        NOTIF_ONE_HOURS_MODE -> {
+        NOTIF_ONE_HOUR_MODE -> {
             updatePeriodicWorkInterval(
                 context = context,
                 interval = ONE_HOUR_INTERVAL.toLong(),

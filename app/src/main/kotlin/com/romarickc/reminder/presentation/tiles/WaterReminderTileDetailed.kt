@@ -30,6 +30,7 @@ import com.google.android.horologist.tiles.images.drawableResToImageResource
 import com.romarickc.reminder.R
 import com.romarickc.reminder.commons.Constants
 import com.romarickc.reminder.commons.Constants.DB_NOTIF_LEVEL_IDX
+import com.romarickc.reminder.commons.Constants.NOTIF_ONE_HOUR_MODE
 import com.romarickc.reminder.commons.getTimeLineBuilder
 import com.romarickc.reminder.commons.loadLanguage
 import com.romarickc.reminder.commons.openAppMod
@@ -67,7 +68,8 @@ class WaterReminderTileDetailed : SuspendingTileService() {
             repository.insertIntake()
 
             // update the worker to not send any notification that is like a minute away
-            val notifPref = repository.getNotifPref(DB_NOTIF_LEVEL_IDX).firstOrNull() ?: 0
+            val notifPref =
+                repository.getNotifPref(DB_NOTIF_LEVEL_IDX).firstOrNull() ?: NOTIF_ONE_HOUR_MODE
             Toast
                 .makeText(
                     application,

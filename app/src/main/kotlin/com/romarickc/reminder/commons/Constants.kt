@@ -35,7 +35,7 @@ object Constants {
     const val THREE_HOURS_INTERVAL = 3
     const val ONE_HOUR_INTERVAL = 1
     const val NOTIF_THREE_HOURS_MODE = 1
-    const val NOTIF_ONE_HOURS_MODE = 3
+    const val NOTIF_ONE_HOUR_MODE = 3
     const val NOTIF_DISABLED_MODE = 2
     const val TIME_8_AM_INCLUS = 8
     const val TIME_22_H_INCLUS = 22

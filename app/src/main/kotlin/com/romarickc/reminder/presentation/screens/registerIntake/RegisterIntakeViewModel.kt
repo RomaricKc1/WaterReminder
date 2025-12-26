@@ -7,6 +7,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.romarickc.reminder.R
 import com.romarickc.reminder.commons.Constants.DB_NOTIF_LEVEL_IDX
+import com.romarickc.reminder.commons.Constants.NOTIF_ONE_HOUR_MODE
 import com.romarickc.reminder.commons.UiEvent
 import com.romarickc.reminder.commons.reSchedPeriodicWork
 import com.romarickc.reminder.domain.repository.WaterIntakeRepository
@@ -75,13 +76,13 @@ class RegisterIntakeViewModel
                 // Toast.makeText(application, "$notifPref", Toast.LENGTH_SHORT).show()
 
                 Log.i("register intake notif", "called")
-                val notifPref = repository.getNotifPref(DB_NOTIF_LEVEL_IDX).firstOrNull() ?: 0
+                val notifPref =
+                    repository.getNotifPref(DB_NOTIF_LEVEL_IDX).firstOrNull() ?: NOTIF_ONE_HOUR_MODE
                 reSchedPeriodicWork(
                     context = application,
                     notifPref = notifPref,
                     careAboutDisabled = false,
                 )
-                // Log.i("inserted", "current policy -> $currentNotifSetting")
             }
         }
     }
