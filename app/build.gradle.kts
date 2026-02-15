@@ -18,9 +18,9 @@ android {
         applicationId = "com.romarickc.reminder"
         minSdk = 30
         targetSdk = 36
-        versionCode = 3
-        versionName = "1.2"
-        version = "1.2"
+        versionCode = 4
+        versionName = "1.3"
+        version = "1.3"
         vectorDrawables.useSupportLibrary = true
         testInstrumentationRunner = "com.romarickc.reminder.HiltTestRunner"
     }
