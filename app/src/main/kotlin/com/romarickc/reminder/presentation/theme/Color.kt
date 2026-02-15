@@ -1,7 +1,7 @@
 package com.romarickc.reminder.presentation.theme
 
 import androidx.compose.ui.graphics.Color
-import androidx.wear.compose.material.Colors
+import androidx.wear.compose.material3.ColorScheme
 
 val Purple200 = Color(0xFFBB86FC)
 val Purple700 = Color(0xFF3700B3)
@@ -11,12 +11,12 @@ val Grey500 = Color(0xFF202124)
 val MyBlue = Color(0xFF339aff)
 val MyBlue2 = Color(0xFF15202f)
 
-internal val wearColorPalette: Colors =
-    Colors(
+internal val Color: ColorScheme =
+    ColorScheme(
         primary = Purple200,
-        primaryVariant = Purple700,
+        primaryDim = Purple700,
         secondary = Teal200,
-        secondaryVariant = Teal200,
+        secondaryDim = Teal200,
         error = Red400,
         onPrimary = Color.Black,
         onSecondary = Color.Black,

@@ -117,7 +117,6 @@ fun PermissionDialog(
                         },
                         onClick = onSettings,
                         modifier = Modifier.fillMaxWidth(.8F),
-                        colors = ChipDefaults.primaryChipColors(),
                     )
                 }
             }

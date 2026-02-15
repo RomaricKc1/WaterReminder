@@ -5,17 +5,16 @@
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
     <uses-permission android:name="android.permission.WAKE_LOCK" />
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
-    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_DATA_SYNC" />
     <uses-permission android:name="android.permission.VIBRATE" />
 
     <uses-feature android:name="android.hardware.type.watch" />
-    <!--android:icon="@mipmap/ic_launcher" -->
     <application
         android:name=".MyApplication"
         android:allowBackup="true"
-        android:icon="@drawable/baseline_water_drop_24"
+        android:usesCleartextTraffic="true"
+        android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:supportsRtl="true"
         android:theme="@android:style/Theme.DeviceDefault">
@@ -61,7 +60,7 @@
             <!-- The tile preview shown when configuring tiles on your phone -->
             <meta-data
                 android:name="androidx.wear.tiles.PREVIEW"
-                android:resource="@drawable/tile1previewround" />
+                android:resource="@drawable/tile_zen" />
         </service>
 
         <service
@@ -78,8 +77,44 @@
             <!-- The tile preview shown when configuring tiles on your phone -->
             <meta-data
                 android:name="androidx.wear.tiles.PREVIEW"
-                android:resource="@drawable/tile2previewround" />
+                android:resource="@drawable/tile_detailed" />
         </service>
+
+
+        <service
+            android:name=".presentation.tiles.WaterReminderTileGoal"
+            android:description="@string/tileGoal_desc"
+            android:exported="true"
+            android:label="@string/tileGoal_lbl"
+            android:foregroundServiceType="dataSync"
+            android:permission="com.google.android.wearable.permission.BIND_TILE_PROVIDER">
+            <intent-filter>
+                <action android:name="androidx.wear.tiles.action.BIND_TILE_PROVIDER" />
+            </intent-filter>
+
+            <!-- The tile preview shown when configuring tiles on your phone -->
+            <meta-data
+                android:name="androidx.wear.tiles.PREVIEW"
+                android:resource="@drawable/tile_goal" />
+        </service>
+
+        <service
+            android:name=".presentation.tiles.WaterReminderTilePilled"
+            android:description="@string/tileGoal_desc"
+            android:exported="true"
+            android:label="@string/tileGoal_lbl"
+            android:foregroundServiceType="dataSync"
+            android:permission="com.google.android.wearable.permission.BIND_TILE_PROVIDER">
+            <intent-filter>
+                <action android:name="androidx.wear.tiles.action.BIND_TILE_PROVIDER" />
+            </intent-filter>
+
+            <!-- The tile preview shown when configuring tiles on your phone -->
+            <meta-data
+                android:name="androidx.wear.tiles.PREVIEW"
+                android:resource="@drawable/tile_pilled" />
+        </service>
+
 
         <receiver
             android:name=".commons.SkipWaterReceiver"

@@ -34,11 +34,18 @@ object Constants {
     // notifs
     const val THREE_HOURS_INTERVAL = 3
     const val ONE_HOUR_INTERVAL = 1
-    const val NOTIF_THREE_HOURS_MODE = 1
-    const val NOTIF_ONE_HOUR_MODE = 3
-    const val NOTIF_DISABLED_MODE = 2
     const val TIME_8_AM_INCLUS = 8
     const val TIME_22_H_INCLUS = 22
+
+    // server
+    const val SERVER_ADDR = "http://192.168.1.24:8079"
+    const val FALLBACK_SERVER_ADDR = "http://0.0.0.0:8079"
+    const val SERVER_ADDR_KEY = "server_addr"
+
+    const val DEFAULT_QR_CODE_CONTENT = "Export failed"
+    const val MAX_QR_CODE_BYTES = 1000
+    const val QR_CODE_1L = 800
+    const val ZSTD_COMPRESSION_LEVEL = 22
 
     // permission
     @RequiresApi(Build.VERSION_CODES.TIRAMISU)

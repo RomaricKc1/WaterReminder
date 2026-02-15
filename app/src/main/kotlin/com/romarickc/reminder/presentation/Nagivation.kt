@@ -11,6 +11,7 @@ import com.romarickc.reminder.presentation.screens.about.AboutScreen
 import com.romarickc.reminder.presentation.screens.home.HomeScreen
 import com.romarickc.reminder.presentation.screens.hydrationTips.HydrationTipsScreen
 import com.romarickc.reminder.presentation.screens.importExport.ImportExportScreen
+import com.romarickc.reminder.presentation.screens.importExport.ServerScreen
 import com.romarickc.reminder.presentation.screens.intakeHistory.DaysGraphScreen
 import com.romarickc.reminder.presentation.screens.intakeHistory.IntakeHistoryScreen
 import com.romarickc.reminder.presentation.screens.intakeHistory.MonthsGraphScreen
@@ -42,6 +43,11 @@ fun NavigationM() {
         }
         composable(Routes.SETTINGS) {
             SettingsScreen(onNavigate = { destination ->
+                navController.navigate(destination.route)
+            })
+        }
+        composable(Routes.IMPORT_EXPORT) {
+            ImportExportScreen(onNavigate = { destination ->
                 navController.navigate(destination.route)
             })
         }
@@ -82,13 +88,13 @@ fun NavigationM() {
                 navController.popBackStack()
             })
         }
-        composable(Routes.IMPORT_EXPORT) {
-            ImportExportScreen(onPopBackStack = {
+        composable(Routes.ABOUT) {
+            AboutScreen(onPopBackStack = {
                 navController.popBackStack()
             })
         }
-        composable(Routes.ABOUT) {
-            AboutScreen(onPopBackStack = {
+        composable(Routes.SERVER) {
+            ServerScreen(onPopBackStack = {
                 navController.popBackStack()
             })
         }

@@ -1,47 +1,42 @@
 package com.romarickc.reminder.presentation.screens.settings
 
-import androidx.compose.foundation.focusable
-import androidx.compose.foundation.gestures.animateScrollBy
-import androidx.compose.foundation.gestures.scrollBy
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.Info
 import androidx.compose.material.icons.rounded.Language
 import androidx.compose.material.icons.rounded.Notifications
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.focus.FocusRequester
-import androidx.compose.ui.focus.focusRequester
-import androidx.compose.ui.input.rotary.onRotaryScrollEvent
-import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
-import androidx.wear.compose.foundation.lazy.ScalingLazyColumn
-import androidx.wear.compose.foundation.lazy.ScalingLazyListState
-import androidx.wear.compose.foundation.lazy.rememberScalingLazyListState
-import androidx.wear.compose.material.Chip
-import androidx.wear.compose.material.ChipDefaults
-import androidx.wear.compose.material.Icon
-import androidx.wear.compose.material.ListHeader
-import androidx.wear.compose.material.PositionIndicator
-import androidx.wear.compose.material.Scaffold
-import androidx.wear.compose.material.Text
-import androidx.wear.compose.material.TimeText
-import androidx.wear.compose.material.Vignette
-import androidx.wear.compose.material.VignettePosition
+import androidx.wear.compose.foundation.lazy.TransformingLazyColumn
+import androidx.wear.compose.foundation.lazy.rememberTransformingLazyColumnState
+import androidx.wear.compose.material3.AppScaffold
+import androidx.wear.compose.material3.EdgeButton
+import androidx.wear.compose.material3.EdgeButtonSize
+import androidx.wear.compose.material3.Icon
+import androidx.wear.compose.material3.ListHeader
+import androidx.wear.compose.material3.MaterialTheme
+import androidx.wear.compose.material3.ScreenScaffold
+import androidx.wear.compose.material3.SurfaceTransformation
+import androidx.wear.compose.material3.Text
+import androidx.wear.compose.material3.TextButton
+import androidx.wear.compose.material3.TextButtonColors
+import androidx.wear.compose.material3.lazy.rememberTransformationSpec
+import androidx.wear.compose.material3.lazy.transformedHeight
 import androidx.wear.tooling.preview.devices.WearDevices
+import com.google.android.horologist.compose.layout.ColumnItemType
+import com.google.android.horologist.compose.layout.rememberResponsiveColumnPadding
 import com.romarickc.reminder.R
 import com.romarickc.reminder.commons.UiEvent
-import com.romarickc.reminder.presentation.theme.MyBlue
 import com.romarickc.reminder.presentation.theme.ReminderTheme
-import kotlinx.coroutines.launch
 
 @Suppress("ktlint:standard:function-naming")
 @Composable
@@ -55,7 +50,10 @@ fun SettingsScreen(
                 is UiEvent.Navigate -> {
                     onNavigate(event)
                 }
-                else -> Unit
+
+                else -> {
+                    Unit
+                }
             }
         }
     })
@@ -66,83 +64,119 @@ fun SettingsScreen(
 @Suppress("ktlint:standard:function-naming")
 @Composable
 fun SettingsContent(onEvent: (SettingsEvents) -> Unit) {
-    val scalingLazyListState: ScalingLazyListState = rememberScalingLazyListState()
+    AppScaffold {
+        val listState = rememberTransformingLazyColumnState()
+        val transformationSpec = rememberTransformationSpec()
 
-    Scaffold(
-        timeText = { TimeText() },
-        vignette = { Vignette(vignettePosition = VignettePosition.TopAndBottom) },
-        positionIndicator = { PositionIndicator(scalingLazyListState = scalingLazyListState) },
-    ) {
-        val coroutineScope = rememberCoroutineScope()
-        val focusRequester = remember { FocusRequester() }
-        LaunchedEffect(Unit) { focusRequester.requestFocus() }
-
-        ScalingLazyColumn(
-            modifier =
-                Modifier
-                    .onRotaryScrollEvent {
-                        coroutineScope.launch {
-                            scalingLazyListState.scrollBy(it.verticalScrollPixels)
-                            scalingLazyListState.animateScrollBy(0f)
-                        }
-                        true
-                    }.focusRequester(focusRequester)
-                    .focusable()
-                    .fillMaxSize()
-                    .testTag("lazyColumnHistory"),
-            state = scalingLazyListState,
-            verticalArrangement = Arrangement.Center,
-        ) {
-            // title
-            item {
-                ListHeader {
-                    Text(text = stringResource(R.string.settings))
-                }
-            }
-
-            // buttons for notif and lang settings
-            items(2) { index ->
-                Chip(
-                    modifier =
-                        Modifier
-                            .fillMaxWidth()
-                            .padding(top = 10.dp),
-                    icon = {
-                        when (index) {
-                            0 ->
-                                Icon(
-                                    imageVector = Icons.Rounded.Language,
-                                    contentDescription = "lang settings",
-                                )
-
-                            1 ->
-                                Icon(
-                                    imageVector = Icons.Rounded.Notifications,
-                                    contentDescription = "notif pref settings",
-                                )
-                        }
-                    },
-                    colors =
-                        ChipDefaults.chipColors(
-                            backgroundColor = MyBlue,
-                        ),
-                    label = {
-                        when (index) {
-                            0 ->
-                                Text(text = stringResource(R.string.lang_settings))
-                            1 ->
-                                Text(text = stringResource(R.string.notif_settings))
-                        }
-                    },
+        ScreenScaffold(
+            scrollState = listState,
+            contentPadding =
+                rememberResponsiveColumnPadding(
+                    first = ColumnItemType.IconButton,
+                    last = ColumnItemType.Button,
+                ),
+            edgeButton = {
+                EdgeButton(
                     onClick = {
-                        when (index) {
-                            0 ->
-                                onEvent(SettingsEvents.OnLanguageSettingsClick)
-                            1 ->
-                                onEvent(SettingsEvents.OnNotifSettingsClick)
-                        }
                     },
-                )
+                    buttonSize = EdgeButtonSize.Medium,
+                ) {
+                    Icon(
+                        imageVector = Icons.Rounded.Info,
+                        contentDescription = "",
+                        modifier = Modifier,
+                    )
+
+                    Text(
+                        text = stringResource(R.string.end),
+                    )
+                }
+            },
+        ) { contentPadding ->
+
+            TransformingLazyColumn(
+                state = listState,
+                contentPadding = contentPadding,
+            ) {
+                // title
+                item {
+                    ListHeader(
+                        modifier =
+                            Modifier.fillMaxWidth().transformedHeight(this, transformationSpec),
+                        transformation = SurfaceTransformation(transformationSpec),
+                    ) {
+                        Text(
+                            modifier = Modifier,
+                            textAlign = TextAlign.Center,
+                            text = stringResource(R.string.settings),
+                        )
+                    }
+                }
+
+                // buttons for notif and lang settings
+                items(2) { index ->
+                    TextButton(
+                        modifier =
+                            Modifier
+                                .fillMaxWidth(.8F),
+                        onClick = {
+                            when (index) {
+                                0 -> {
+                                    onEvent(SettingsEvents.OnLanguageSettingsClick)
+                                }
+
+                                1 -> {
+                                    onEvent(SettingsEvents.OnNotifSettingsClick)
+                                }
+                            }
+                        },
+                        colors =
+                            TextButtonColors(
+                                containerColor = MaterialTheme.colorScheme.secondaryDim,
+                                contentColor = MaterialTheme.colorScheme.onSecondary,
+                                disabledContainerColor = Color.Black,
+                                disabledContentColor = Color.Black,
+                            ),
+                    ) {
+                        Row(
+                            modifier =
+                            Modifier,
+                            horizontalArrangement = Arrangement.Center,
+                            verticalAlignment = Alignment.CenterVertically,
+                        ) {
+                            when (index) {
+                                0 -> {
+                                    Icon(
+                                        imageVector = Icons.Rounded.Language,
+                                        contentDescription = "lang settings",
+                                    )
+                                }
+
+                                1 -> {
+                                    Icon(
+                                        imageVector = Icons.Rounded.Notifications,
+                                        contentDescription = "notif pref settings",
+                                    )
+                                }
+                            }
+                            when (index) {
+                                0 -> {
+                                    Text(
+                                        textAlign = TextAlign.Center,
+                                        text = stringResource(R.string.lang_settings_short),
+                                    )
+                                }
+
+                                1 -> {
+                                    Text(
+                                        textAlign = TextAlign.Center,
+                                        text = stringResource(R.string.notif_settings_short),
+                                    )
+                                }
+                            }
+                        }
+                    }
+                }
             }
         }
     }

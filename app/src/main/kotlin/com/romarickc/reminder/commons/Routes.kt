@@ -13,5 +13,5 @@ object Routes {
     const val SETTINGS = "settings"
     const val NOTIF_SETTINGS = "notif_settings"
     const val LANG_SETTINGS = "lang_settings"
-    // I won't change anything, but can be set all in the string resource
+    const val SERVER = "server"
 }

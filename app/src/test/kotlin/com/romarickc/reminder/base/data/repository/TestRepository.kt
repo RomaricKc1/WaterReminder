@@ -65,11 +65,21 @@ class TestRepository : WaterIntakeRepository {
         TODO("Not yet implemented")
     }
 
+    @Deprecated("Using file system. I don't like it anymore. Use http server comm")
     override fun importFromFile(filePath: String): Int {
         TODO("Not yet implemented")
     }
 
+    override fun importFromStr(stream: String): Int {
+        TODO("Not yet implemented")
+    }
+
+    @Deprecated("Using file system. I don't like it anymore. Use http server comm")
     override suspend fun getAllAndExportToFile(filePath: String): Int {
+        TODO("Not yet implemented")
+    }
+
+    override suspend fun getAllToStr(): String? {
         TODO("Not yet implemented")
     }
 

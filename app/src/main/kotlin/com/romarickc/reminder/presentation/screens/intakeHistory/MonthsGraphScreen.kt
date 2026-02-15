@@ -3,6 +3,7 @@ package com.romarickc.reminder.presentation.screens.intakeHistory
 import android.util.Log
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -17,15 +18,13 @@ import androidx.compose.ui.graphics.nativeCanvas
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
-import androidx.wear.compose.foundation.lazy.ScalingLazyColumn
-import androidx.wear.compose.foundation.lazy.ScalingLazyListState
-import androidx.wear.compose.foundation.lazy.rememberScalingLazyListState
-import androidx.wear.compose.material.PositionIndicator
-import androidx.wear.compose.material.Scaffold
-import androidx.wear.compose.material.TimeText
-import androidx.wear.compose.material.Vignette
-import androidx.wear.compose.material.VignettePosition
+import androidx.wear.compose.foundation.lazy.TransformingLazyColumn
+import androidx.wear.compose.foundation.lazy.rememberTransformingLazyColumnState
+import androidx.wear.compose.material3.AppScaffold
+import androidx.wear.compose.material3.ScreenScaffold
 import androidx.wear.tooling.preview.devices.WearDevices
+import com.google.android.horologist.compose.layout.ColumnItemType
+import com.google.android.horologist.compose.layout.rememberResponsiveColumnPadding
 import com.romarickc.reminder.R
 import com.romarickc.reminder.commons.Constants.MONTHS_CNT
 import com.romarickc.reminder.commons.UiEvent
@@ -50,7 +49,10 @@ fun MonthsGraphScreen(
                 is UiEvent.PopBackStack -> {
                     onPopBackStack(event)
                 }
-                else -> Unit
+
+                else -> {
+                    Unit
+                }
             }
         }
     })
@@ -65,22 +67,30 @@ fun MonthsGraphContent(waterIntakeList: List<WaterIntake>) {
     val monthIntakeData = waterIntakeData.getMonthIntakeData()
 
     Log.i("graph data", "$monthIntakeData")
-    // var theText by remember { mutableStateOf("") }
 
-    val scalingLazyListState: ScalingLazyListState = rememberScalingLazyListState()
-    Scaffold(
-        timeText = { TimeText() },
-        vignette = { Vignette(vignettePosition = VignettePosition.TopAndBottom) },
-        positionIndicator = { PositionIndicator(scalingLazyListState = scalingLazyListState) },
-    ) {
-        ScalingLazyColumn(
-            modifier = Modifier.fillMaxSize(),
-            state = scalingLazyListState,
-            verticalArrangement = Arrangement.Center,
-        ) {
-            item {
-                Log.i("graph", "this year")
-                GraphMonths(monthIntakeData)
+    AppScaffold {
+        val listState = rememberTransformingLazyColumnState()
+
+        ScreenScaffold(
+            scrollState = listState,
+            contentPadding =
+                rememberResponsiveColumnPadding(
+                    first = ColumnItemType.IconButton,
+                    last = ColumnItemType.Button,
+                ),
+            edgeButton = {
+            },
+        ) { contentPadding ->
+            TransformingLazyColumn(
+                state = listState,
+                contentPadding = contentPadding,
+                verticalArrangement = Arrangement.Center,
+                modifier = Modifier.fillMaxHeight(),
+            ) {
+                item {
+                    Log.i("graph", "this year")
+                    GraphMonths(monthIntakeData)
+                }
             }
         }
     }
@@ -91,14 +101,18 @@ fun MonthsGraphContent(waterIntakeList: List<WaterIntake>) {
 fun GraphMonths(data: Map<Int, Int>) {
     val last12Months = stringResource(R.string.last_12_months)
     val maxValue = data.values.maxOrNull() ?: 0
+
+    val avgToDate = averageToMonth(data)
+    Log.i("intakes day", "average to month: $avgToDate")
+
     val monthsViewStr = stringResource(R.string.months_view_graph)
     val intakeText =
         if (maxValue <= 1) {
             stringResource(R.string.top_intake)
-                .format(maxValue)
+                .format(maxValue, avgToDate.toInt())
         } else {
             stringResource(R.string.top_intakes)
-                .format(maxValue)
+                .format(maxValue, avgToDate.toInt())
         }
 
     Canvas(
@@ -125,9 +139,7 @@ fun GraphMonths(data: Map<Int, Int>) {
             strokeWidth = 1.5f,
         )
 
-        val avgToDate = averageToMonth(data)
-        Log.i("intakes day", "average to month: $avgToDate")
-
+        // avg line
         var actualHeight =
             mapHeight(
                 avgToDate,

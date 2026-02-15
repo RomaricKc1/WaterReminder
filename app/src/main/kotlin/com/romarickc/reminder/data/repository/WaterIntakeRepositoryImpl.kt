@@ -23,9 +23,15 @@ class WaterIntakeRepositoryImpl(
         endTimestamp: Long,
     ): Flow<List<WaterIntake>> = dao.getPeriodWaterIntake(startTimestamp, endTimestamp)
 
+    @Deprecated("Using file system. I don't like it anymore. Use http server comm")
     override fun importFromFile(filePath: String) = dao.importFromFile(filePath)
 
+    override fun importFromStr(stream: String): Int? = dao.importFromStr(stream)
+
+    @Deprecated("Using file system. I don't like it anymore. Use http server comm")
     override suspend fun getAllAndExportToFile(filePath: String) = dao.getAllAndExportToFile(filePath)
+
+    override suspend fun getAllToStr(): String? = dao.getAllToStr()
 
     override fun getCount(): Flow<Int> = dao.getCount()
 

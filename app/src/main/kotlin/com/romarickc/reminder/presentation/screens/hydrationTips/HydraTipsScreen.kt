@@ -1,12 +1,6 @@
 package com.romarickc.reminder.presentation.screens.hydrationTips
 
-import androidx.compose.foundation.focusable
-import androidx.compose.foundation.gestures.animateScrollBy
-import androidx.compose.foundation.gestures.scrollBy
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.requiredSize
@@ -14,33 +8,36 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.TipsAndUpdates
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.focus.FocusRequester
-import androidx.compose.ui.focus.focusRequester
-import androidx.compose.ui.input.rotary.onRotaryScrollEvent
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
-import androidx.wear.compose.foundation.lazy.ScalingLazyColumn
-import androidx.wear.compose.foundation.lazy.ScalingLazyListState
-import androidx.wear.compose.foundation.lazy.rememberScalingLazyListState
-import androidx.wear.compose.material.AppCard
-import androidx.wear.compose.material.Icon
-import androidx.wear.compose.material.MaterialTheme
-import androidx.wear.compose.material.PositionIndicator
-import androidx.wear.compose.material.Scaffold
-import androidx.wear.compose.material.Text
-import androidx.wear.compose.material.TimeText
-import androidx.wear.compose.material.Vignette
-import androidx.wear.compose.material.VignettePosition
+import androidx.wear.compose.foundation.lazy.TransformingLazyColumn
+import androidx.wear.compose.foundation.lazy.rememberTransformingLazyColumnState
+import androidx.wear.compose.material3.AppCard
+import androidx.wear.compose.material3.AppScaffold
+import androidx.wear.compose.material3.EdgeButton
+import androidx.wear.compose.material3.EdgeButtonSize
+import androidx.wear.compose.material3.Icon
+import androidx.wear.compose.material3.ListHeader
+import androidx.wear.compose.material3.MaterialTheme
+import androidx.wear.compose.material3.ScreenScaffold
+import androidx.wear.compose.material3.SurfaceTransformation
+import androidx.wear.compose.material3.Text
+import androidx.wear.compose.material3.lazy.rememberTransformationSpec
+import androidx.wear.compose.material3.lazy.transformedHeight
 import androidx.wear.tooling.preview.devices.WearDevices
+import com.google.android.horologist.compose.layout.ColumnItemType
+import com.google.android.horologist.compose.layout.rememberResponsiveColumnPadding
 import com.romarickc.reminder.R
 import com.romarickc.reminder.commons.UiEvent
 import com.romarickc.reminder.presentation.theme.ReminderTheme
-import kotlinx.coroutines.launch
 
 @Suppress("ktlint:standard:function-naming")
 @Composable
@@ -54,7 +51,10 @@ fun HydrationTipsScreen(
                 is UiEvent.PopBackStack -> {
                     onPopBackStack(event)
                 }
-                else -> Unit
+
+                else -> {
+                    Unit
+                }
             }
         }
     })
@@ -103,46 +103,86 @@ fun HydrationTipsScreen(
 @Suppress("ktlint:standard:function-naming")
 @Composable
 fun HydrationTipsContent(tipsList: List<Tip>) {
-    val scalingLazyListState: ScalingLazyListState = rememberScalingLazyListState()
+    AppScaffold {
+        val listState = rememberTransformingLazyColumnState()
+        val transformationSpec = rememberTransformationSpec()
+        var more by remember { mutableStateOf(false) }
+        var init by remember { mutableStateOf(true) }
 
-    Scaffold(
-        timeText = { TimeText() },
-        vignette = { Vignette(vignettePosition = VignettePosition.TopAndBottom) },
-        positionIndicator = { PositionIndicator(scalingLazyListState = scalingLazyListState) },
-    ) {
-        val coroutineScope = rememberCoroutineScope()
-        val focusRequester = remember { FocusRequester() }
-        LaunchedEffect(Unit) { focusRequester.requestFocus() }
-
-        ScalingLazyColumn(
-            modifier =
-                Modifier
-                    .onRotaryScrollEvent {
-                        coroutineScope.launch {
-                            scalingLazyListState.scrollBy(it.verticalScrollPixels)
-                            scalingLazyListState.animateScrollBy(0f)
-                        }
-                        true
-                    }.focusRequester(focusRequester)
-                    .focusable()
-                    .fillMaxSize(),
+        ScreenScaffold(
+            scrollState = listState,
             contentPadding =
-                PaddingValues(
-                    top = 51.dp,
-                    start = 20.dp,
-                    end = 20.dp,
-                    bottom = 50.dp,
+                rememberResponsiveColumnPadding(
+                    first = ColumnItemType.IconButton,
+                    last = ColumnItemType.Button,
                 ),
-            state = scalingLazyListState,
-            verticalArrangement = Arrangement.Center,
-        ) {
-            items(tipsList.size) { index ->
-                SimpleCard(
-                    stringResource(R.string.tip),
-                    "${index + 1}",
-                    title = tipsList[index].title,
-                    content = tipsList[index].description,
-                )
+            edgeButton = {
+                if (init) {
+                    EdgeButton(
+                        onClick = {
+                            more = true
+                        },
+                        buttonSize = EdgeButtonSize.Medium,
+                    ) {
+                        Text("more")
+                    }
+                }
+            },
+        ) { contentPadding ->
+
+            TransformingLazyColumn(
+                state = listState,
+                contentPadding = contentPadding,
+            ) {
+                // title
+                item {
+                    ListHeader(
+                        modifier =
+                            Modifier.fillMaxWidth().transformedHeight(this, transformationSpec),
+                        transformation = SurfaceTransformation(transformationSpec),
+                    ) {
+                        Text(
+                            modifier = Modifier,
+                            textAlign = TextAlign.Center,
+                            text = stringResource(R.string.tips),
+                        )
+                    }
+                }
+
+                items(tipsList.size) { index ->
+                    if (index <= 2) {
+                        SimpleCard(
+                            stringResource(R.string.tip),
+                            "",
+                            title = tipsList[index].title,
+                            content = tipsList[index].description,
+                            modifier =
+                                Modifier
+                                    .fillMaxWidth()
+                                    .transformedHeight(this, transformationSpec)
+                                    .padding(2.dp),
+                        )
+                    }
+                }
+
+                if (more) {
+                    init = false
+                    items(tipsList.size) { index ->
+                        if (index > 2) {
+                            SimpleCard(
+                                stringResource(R.string.tip),
+                                "",
+                                title = tipsList[index].title,
+                                content = tipsList[index].description,
+                                modifier =
+                                    Modifier
+                                        .fillMaxWidth()
+                                        .transformedHeight(this, transformationSpec)
+                                        .padding(2.dp),
+                            )
+                        }
+                    }
+                }
             }
         }
     }
@@ -160,8 +200,10 @@ fun SimpleCard(
     time: String,
     title: String,
     content: String,
+    modifier: Modifier,
 ) {
     AppCard(
+        modifier = modifier,
         appImage = {
             Icon(
                 imageVector = Icons.Rounded.TipsAndUpdates,
@@ -169,10 +211,9 @@ fun SimpleCard(
                 modifier = Modifier.requiredSize(15.dp),
             )
         },
-        appName = { Text(theApp, color = MaterialTheme.colors.primary) },
-        time = { Text(time, color = MaterialTheme.colors.secondary) },
-        title = { Text(title, color = MaterialTheme.colors.onSurface) },
-        modifier = Modifier.padding(2.dp),
+        appName = { Text(theApp, color = MaterialTheme.colorScheme.primary) },
+        time = { Text(time, color = MaterialTheme.colorScheme.secondary) },
+        title = { Text(title, color = MaterialTheme.colorScheme.onSurface) },
         onClick = {},
     ) {
         Column(modifier = Modifier.fillMaxWidth()) {

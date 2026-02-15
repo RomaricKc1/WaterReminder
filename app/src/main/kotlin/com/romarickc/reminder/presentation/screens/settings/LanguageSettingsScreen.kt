@@ -1,8 +1,6 @@
 package com.romarickc.reminder.presentation.screens.settings
 
 import android.util.Log
-import androidx.compose.foundation.focusable
-import androidx.compose.foundation.gestures.scrollBy
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -13,33 +11,29 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.ArrowForward
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.focus.FocusRequester
-import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.input.rotary.onRotaryScrollEvent
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.font.FontWeight.Companion.Bold
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
-import androidx.wear.compose.material.Button
-import androidx.wear.compose.material.ButtonDefaults
-import androidx.wear.compose.material.Icon
-import androidx.wear.compose.material.ListHeader
-import androidx.wear.compose.material.Picker
-import androidx.wear.compose.material.Scaffold
-import androidx.wear.compose.material.Text
-import androidx.wear.compose.material.TimeText
-import androidx.wear.compose.material.Vignette
-import androidx.wear.compose.material.VignettePosition
-import androidx.wear.compose.material.rememberPickerState
+import androidx.wear.compose.foundation.lazy.rememberTransformingLazyColumnState
+import androidx.wear.compose.material3.AppScaffold
+import androidx.wear.compose.material3.Icon
+import androidx.wear.compose.material3.ListHeader
+import androidx.wear.compose.material3.Picker
+import androidx.wear.compose.material3.ScreenScaffold
+import androidx.wear.compose.material3.Text
+import androidx.wear.compose.material3.TextButton
+import androidx.wear.compose.material3.TextButtonColors
 import androidx.wear.tooling.preview.devices.WearDevices
+import com.google.android.horologist.compose.layout.ColumnItemType
+import com.google.android.horologist.compose.layout.rememberResponsiveColumnPadding
 import com.romarickc.reminder.R
 import com.romarickc.reminder.commons.Constants.LANG_EN
 import com.romarickc.reminder.commons.Constants.LANG_FR
@@ -47,7 +41,6 @@ import com.romarickc.reminder.commons.E_Languages
 import com.romarickc.reminder.commons.UiEvent
 import com.romarickc.reminder.presentation.theme.MyBlue
 import com.romarickc.reminder.presentation.theme.ReminderTheme
-import kotlinx.coroutines.launch
 
 @Suppress("ktlint:standard:function-naming")
 @Composable
@@ -63,7 +56,10 @@ fun LanguageSettingsScreen(
                 is UiEvent.PopBackStack -> {
                     onPopBackStack(event)
                 }
-                else -> Unit
+
+                else -> {
+                    Unit
+                }
             }
         }
     })
@@ -88,84 +84,92 @@ fun LanguageSettingsContent(
         )
 
     val pickerState =
-        rememberPickerState(
+        androidx.wear.compose.material3.rememberPickerState(
             initialNumberOfOptions = languages.size,
-            initiallySelectedOption = langPref,
-            repeatItems = false,
+            initiallySelectedIndex = langPref,
+            shouldRepeatOptions = false,
         )
+    AppScaffold {
+        val listState = rememberTransformingLazyColumnState()
 
-    Scaffold(
-        timeText = { TimeText() },
-        vignette = { Vignette(vignettePosition = VignettePosition.TopAndBottom) },
-    ) {
-        val coroutineScope = rememberCoroutineScope()
-        val focusRequester = remember { FocusRequester() }
-        LaunchedEffect(Unit) { focusRequester.requestFocus() }
-
-        Column(
-            modifier =
-                Modifier
-                    .onRotaryScrollEvent {
-                        coroutineScope.launch {
-                            pickerState.scrollBy(it.verticalScrollPixels)
-                        }
-                        true
-                    }.focusRequester(focusRequester)
-                    .focusable()
-                    .fillMaxWidth(),
-            verticalArrangement = Arrangement.Center,
-            horizontalAlignment = Alignment.CenterHorizontally,
+        ScreenScaffold(
+            scrollState = listState,
+            contentPadding =
+                rememberResponsiveColumnPadding(
+                    first = ColumnItemType.IconButton,
+                    last = ColumnItemType.Button,
+                ),
+            edgeButton = {
+            },
         ) {
-            // header
-            ListHeader {
-                Text(text = stringResource(R.string.lang_settings), Modifier.padding(top = 29.dp))
-            }
-
-            // preference picker
-            Picker(
+            Column(
                 modifier =
                     Modifier
-                        .height(97.dp),
-                state = pickerState,
-                contentDescription = "sel lang pref",
+                        .fillMaxWidth(),
+                verticalArrangement = Arrangement.Center,
+                horizontalAlignment = Alignment.CenterHorizontally,
             ) {
-                Text(
-                    text = (
-                        when (languages[it]) {
-                            E_Languages.FRANCAIS -> LANG_FR
-                            E_Languages.ENGLISH -> LANG_EN
-                        }
-                    ),
-                    style =
-                        TextStyle(
-                            fontSize = 23.sp,
-                            color = MyBlue,
-                            fontWeight = FontWeight.Bold,
-                        ),
-                )
-            }
-
-            // confirm
-            Button(
-                modifier = Modifier,
-                onClick = {
-                    onEvent(
-                        SettingsEvents.OnLanguageChange(
-                            E_Languages.toValue(languages[pickerState.selectedOption]),
-                        ),
+                // title
+                ListHeader(
+                    modifier =
+                        Modifier.fillMaxWidth().padding(top = 20.dp),
+                ) {
+                    Text(
+                        modifier = Modifier,
+                        textAlign = TextAlign.Center,
+                        text = stringResource(R.string.lang_settings),
                     )
-                },
-                colors =
-                    ButtonDefaults.primaryButtonColors(
-                        backgroundColor = Color(0xFF2a2b2e),
-                    ),
-            ) {
-                Icon(
-                    modifier = Modifier.size(24.dp),
-                    imageVector = Icons.AutoMirrored.Rounded.ArrowForward,
-                    contentDescription = "triggers chg lang",
-                    tint = Color(0xFFf6f6f6),
-                )
+                }
+
+                // preference picker
+                Picker(
+                    modifier =
+                        Modifier
+                            .height(87.dp),
+                    state = pickerState,
+                    contentDescription = { "sel lang pref" },
+                ) {
+                    Text(
+                        text = (
+                            when (languages[it]) {
+                                E_Languages.FRANCAIS -> LANG_FR
+                                E_Languages.ENGLISH -> LANG_EN
+                            }
+                        ),
+                        style =
+                            TextStyle(
+                                fontSize = 23.sp,
+                                color = MyBlue,
+                                fontWeight = Bold,
+                            ),
+                    )
+                }
+
+                // confirm btn
+                TextButton(
+                    modifier = Modifier,
+                    onClick = {
+                        onEvent(
+                            SettingsEvents.OnLanguageChange(
+                                E_Languages.toValue(languages[pickerState.selectedOptionIndex]),
+                            ),
+                        )
+                    },
+                    colors =
+                        TextButtonColors(
+                            containerColor = Color(0xFF2a2b2e),
+                            contentColor = Color.White,
+                            disabledContainerColor = Color.Black,
+                            disabledContentColor = Color.Black,
+                        ),
+                ) {
+                    Icon(
+                        modifier = Modifier.size(24.dp),
+                        imageVector = Icons.AutoMirrored.Rounded.ArrowForward,
+                        contentDescription = "triggers chg lang",
+                        tint = Color(0xFFf6f6f6),
+                    )
+                }
             }
         }
     }

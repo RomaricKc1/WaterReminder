@@ -7,7 +7,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.romarickc.reminder.R
 import com.romarickc.reminder.commons.Constants.DB_NOTIF_LEVEL_IDX
-import com.romarickc.reminder.commons.Constants.NOTIF_ONE_HOUR_MODE
+import com.romarickc.reminder.commons.E_NotifPeriod
 import com.romarickc.reminder.commons.UiEvent
 import com.romarickc.reminder.commons.reSchedPeriodicWork
 import com.romarickc.reminder.domain.repository.WaterIntakeRepository
@@ -73,11 +73,14 @@ class RegisterIntakeViewModel
                     ).show()
 
                 // update the worker to not send any notification that is like a minute away
-                // Toast.makeText(application, "$notifPref", Toast.LENGTH_SHORT).show()
-
                 Log.i("register intake notif", "called")
                 val notifPref =
-                    repository.getNotifPref(DB_NOTIF_LEVEL_IDX).firstOrNull() ?: NOTIF_ONE_HOUR_MODE
+                    E_NotifPeriod.fromValue(
+                        repository
+                            .getNotifPref(DB_NOTIF_LEVEL_IDX)
+                            .firstOrNull() ?: E_NotifPeriod.ONE_HOUR_MODE.value,
+                    )
+                Log.i("register intake notif", "called, notifpref -> $notifPref")
                 reSchedPeriodicWork(
                     context = application,
                     notifPref = notifPref,

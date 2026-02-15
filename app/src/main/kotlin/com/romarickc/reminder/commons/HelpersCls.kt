@@ -1,6 +1,13 @@
 package com.romarickc.reminder.commons
 
+import android.graphics.Bitmap
 import androidx.core.app.NotificationCompat
+import androidx.core.graphics.createBitmap
+import androidx.core.graphics.set
+import com.google.gson.annotations.SerializedName
+import com.google.zxing.BarcodeFormat
+import com.google.zxing.MultiFormatWriter
+import com.google.zxing.common.BitMatrix
 import com.romarickc.reminder.domain.model.WaterIntake
 import java.util.concurrent.TimeUnit
 
@@ -32,6 +39,43 @@ data class WorkerConf(
     val onlyOnNotLowBattery: Boolean,
 )
 
+data class AnyState<out T>(
+    val data: T? = null,
+    val loading: Boolean = false,
+    val error: String? = null,
+)
+
+data class ExportIntakesStream(
+    @SerializedName("line") val line: String,
+)
+
+data class ServerPing(
+    @SerializedName("response") val response: String,
+)
+
+data class ExportIntakesRequest(
+    @SerializedName("line") val line: String,
+)
+
+data class ExportIntakesResponse(
+    @SerializedName("res") val res: String,
+)
+
+sealed class Resource<T>(
+    val data: T? = null,
+    val message: String? = null,
+) {
+    class Success<T>(
+        data: T?,
+        message: String,
+    ) : Resource<T>(data, message)
+
+    class Error<T>(
+        message: String,
+        data: T? = null,
+    ) : Resource<T>(data, message)
+}
+
 @Suppress("ktlint:standard:class-naming")
 enum class E_Languages(
     val value: Int,
@@ -45,6 +89,61 @@ enum class E_Languages(
 
         fun toValue(lang: E_Languages): Int = lang.value
     }
+}
+
+@Suppress("ktlint:standard:class-naming")
+enum class E_ImportServerError(
+    val value: Int,
+) {
+    SUCCESS(0),
+    CONV_STR_DATA_ERROR(1),
+    OTHER_ERROR(2),
+    INIT(3),
+}
+
+@Suppress("ktlint:standard:class-naming")
+enum class E_NotifPeriod(
+    val value: Int,
+) {
+    ONE_HOUR_MODE(0),
+    THREE_HOURS_MODE(1),
+    DISABLED_MODE(2),
+    ;
+
+    companion object {
+        fun fromValue(value: Int): E_NotifPeriod = entries.find { it.value == value } ?: E_NotifPeriod.ONE_HOUR_MODE
+
+        fun toValue(lang: E_NotifPeriod): Int = lang.value
+    }
+}
+
+object QrGenerator {
+    fun encodeAsBitmap(
+        str: String,
+        width: Int,
+        height: Int,
+    ): Bitmap? =
+        try {
+            val bitMatrix: BitMatrix = MultiFormatWriter().encode(str, BarcodeFormat.QR_CODE, width, height)
+            val bmp = createBitmap(width, height)
+            for (x in 0 until width) {
+                for (y in 0 until height) {
+                    bmp[x, y] =
+                        if (bitMatrix.get(
+                                x,
+                                y,
+                            )
+                        ) {
+                            android.graphics.Color.BLACK
+                        } else {
+                            android.graphics.Color.WHITE
+                        }
+                }
+            }
+            bmp
+        } catch (e: Exception) {
+            null
+        }
 }
 
 val listIntakes =

@@ -5,14 +5,17 @@
     <string name="version">Version %1$S</string>
     <string name="source_code">Code Source</string>
     <string name="version_short">v%1$S</string>
+    <string name="end">Fin</string>
 
     <!-- Homepage-->
     <string name="water_intake">%1$s of %2$s (%3$.2fL) Verre</string>
     <string name="water_intakes">%1$s of %2$s (%3$.2fL) Verres</string>
-    <string name="notif_settings">Paramètres de notifications</string>
+    <string name="notif_settings">Paramètres de Notifications</string>
+    <string name="notif_settings_short">Notifications</string>
     <string name="header_main_title">Rappel Hydratation</string>
     <string name="permission_not_granted_no_notif">Permission notification non accordée. Pas de notifications</string>
     <string name="target">Objectif</string>
+    <string name="add_intake">Ajouter</string>
     <string name="daily_intake">Apport du jour</string>
     <string name="intake_history">Historique des Apports</string>
     <string name="register_intake">Ajouter un apport</string>
@@ -28,6 +31,8 @@
     <!-- Tiles-->
     <string name="tileZen_desc">En route pour l\'objectif</string>
     <string name="tileZen_lbl">Progres hydratation</string>
+    <string name="tileGoal_desc">En route pour l\'objectif</string>
+    <string name="tileGoal_lbl">Progres hydratation</string>
     <string name="tileDetailed_desc">D\étails et ajout</string>
     <string name="tileDetailed_lbl">D\étails apports</string>
 
@@ -39,12 +44,27 @@
     <string name="import_success">Importation Réussie</string>
     <string name="export_failure">Echec Exportation</string>
     <string name="import_failure">Echec Importation</string>
+    <string name="comm_server">Communication avec serveur</string>
+    <string name="server">Serveur</string>
+    <string name="old_import_export">Méthode ancienne</string>
+    <string name="chg_address">Changer d\' adresse</string>
+    <string name="enter_address">Entrer une adresse</string>
+    <string name="read_address">Lire de l\'adresse</string>
+    <string name="reload_address">Recharger</string>
+    <string name="gen_qrcode">Gen. QrCode</string>
+    <string name="loading">Chargement</string>
+    <string name="server_info">Adresse %1$s</string>
+    <string name="pong">Pong</string>
+    <string name="ping">Ping</string>
+    <string name="empty_export">Aucune donée pour l\'export</string>
+    <string name="str_to_intakes_error">Converion str vers data echouée</string>
+    <string name="qr_code_error_large">Que %1$d octets exportés dans le qrcode</string>
 
     <!-- Graph views-->
     <string name="days_view_graph">Vue journalière</string>
     <string name="months_view_graph">Vue mensuelle</string>
-    <string name="top_intakes">Plus haut: %1$d apports</string>
-    <string name="top_intake">Plus haut: %1$d apport</string>
+    <string name="top_intakes">Plus haut: %1$d, Moyenne: %2$d apports</string>
+    <string name="top_intake">Plus haut: %1$d, Moyenne: %2$d apport</string>
     <string name="last_12_months">12 derniers mois</string>
     <string name="last_x_days">Derniers %1$d jours</string>
     <string name="see_graph_days">Voir le graphe journalier</string>
@@ -63,19 +83,20 @@
     <string name="lang_en">Anglais</string>
     <string name="lang_fr">Français</string>
     <string name="lang_settings">Paramètre de Langues</string>
+    <string name="lang_settings_short">Langues</string>
 
     <!-- Intake history cards-->
     <string name="intakes_today">Apports aujourd\'hui</string>
     <string name="intake">Apport</string>
     <string name="just_now">Maintenant</string>
-    <string name="year_ago">Il y %1$d an</string>
+    <string name="year_ago">Il y a %1$d an</string>
     <string name="minute_ago">Il y a %1$d min</string>
     <string name="hour_ago">Il y a %1$d heure</string>
     <string name="day_ago">Il y a %1$d jour</string>
-    <string name="years_ago">Il y %1$d ans</string>
-    <string name="minutes_ago">Il y %1$d mins</string>
-    <string name="hours_ago">Il y %1$d heures</string>
-    <string name="days_ago">Il y %1$d jours</string>
+    <string name="years_ago">Il y a %1$d ans</string>
+    <string name="minutes_ago">Il y a %1$d mins</string>
+    <string name="hours_ago">Il y a %1$d heures</string>
+    <string name="days_ago">Il y a %1$d jours</string>
 
     <!-- Permissions-->
     <string name="permission_required">Permission requise</string>
@@ -87,7 +108,7 @@
     <string name="navigate_to_settings">Aller dans les paramètres</string>
 
     <!-- Action notification-->
-    <string name="open_app">Ouvrir l\'application</string>
+    <string name="open_app">Ouvrir</string>
     <string name="skip">Passer</string>
     <string name="drink">Boire</string>
     <string name="skipped">Passé</string>

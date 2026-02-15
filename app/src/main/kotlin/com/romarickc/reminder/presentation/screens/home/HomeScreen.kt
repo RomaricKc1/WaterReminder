@@ -8,12 +8,9 @@ import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.RequiresApi
-import androidx.compose.foundation.focusable
-import androidx.compose.foundation.gestures.animateScrollBy
-import androidx.compose.foundation.gestures.scrollBy
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.requiredSize
@@ -31,36 +28,39 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.focus.FocusRequester
-import androidx.compose.ui.focus.focusRequester
-import androidx.compose.ui.input.rotary.onRotaryScrollEvent
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.core.app.ActivityCompat.shouldShowRequestPermissionRationale
 import androidx.core.net.toUri
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
-import androidx.wear.compose.foundation.lazy.ScalingLazyColumn
-import androidx.wear.compose.foundation.lazy.ScalingLazyListState
-import androidx.wear.compose.foundation.lazy.rememberScalingLazyListState
-import androidx.wear.compose.material.AppCard
-import androidx.wear.compose.material.Chip
-import androidx.wear.compose.material.ChipDefaults
-import androidx.wear.compose.material.Icon
-import androidx.wear.compose.material.ListHeader
-import androidx.wear.compose.material.MaterialTheme
-import androidx.wear.compose.material.PositionIndicator
-import androidx.wear.compose.material.Scaffold
-import androidx.wear.compose.material.Text
-import androidx.wear.compose.material.TimeText
-import androidx.wear.compose.material.Vignette
-import androidx.wear.compose.material.VignettePosition
+import androidx.wear.compose.foundation.lazy.TransformingLazyColumn
+import androidx.wear.compose.foundation.lazy.rememberTransformingLazyColumnState
+import androidx.wear.compose.material3.AppCard
+import androidx.wear.compose.material3.AppScaffold
+import androidx.wear.compose.material3.CardDefaults
+import androidx.wear.compose.material3.EdgeButton
+import androidx.wear.compose.material3.EdgeButtonSize
+import androidx.wear.compose.material3.Icon
+import androidx.wear.compose.material3.ListHeader
+import androidx.wear.compose.material3.MaterialTheme
+import androidx.wear.compose.material3.ScreenScaffold
+import androidx.wear.compose.material3.SurfaceTransformation
+import androidx.wear.compose.material3.Text
+import androidx.wear.compose.material3.TextButton
+import androidx.wear.compose.material3.TextButtonColors
+import androidx.wear.compose.material3.lazy.rememberTransformationSpec
+import androidx.wear.compose.material3.lazy.transformedHeight
 import androidx.wear.tooling.preview.devices.WearDevices
+import com.google.android.horologist.compose.layout.ColumnItemType
+import com.google.android.horologist.compose.layout.rememberResponsiveColumnPadding
 import com.romarickc.reminder.R
 import com.romarickc.reminder.commons.Constants
 import com.romarickc.reminder.commons.Constants.PERMISSION_TO_RQ
@@ -68,9 +68,7 @@ import com.romarickc.reminder.commons.Constants.STANDARD_GLASS_L
 import com.romarickc.reminder.commons.UiEvent
 import com.romarickc.reminder.presentation.screens.intakeTarget.IntakeTargetViewModel
 import com.romarickc.reminder.presentation.screens.settings.PermissionDialog
-import com.romarickc.reminder.presentation.theme.MyBlue
 import com.romarickc.reminder.presentation.theme.ReminderTheme
-import kotlinx.coroutines.launch
 
 @RequiresApi(Build.VERSION_CODES.TIRAMISU)
 @Suppress("ktlint:standard:function-naming")
@@ -104,7 +102,10 @@ fun HomeScreen(
                 is UiEvent.Navigate -> {
                     onNavigate(event)
                 }
-                else -> Unit
+
+                else -> {
+                    Unit
+                }
             }
         }
     })
@@ -155,7 +156,6 @@ fun HomeContent(
     permissionGranted: Boolean,
     onEvent: (HomeScreenEvents) -> Unit,
 ) {
-    val scalingLazyListState: ScalingLazyListState = rememberScalingLazyListState()
     val intakeStr =
         if (intakeCnt > 1) {
             stringResource(R.string.water_intakes)
@@ -166,294 +166,321 @@ fun HomeContent(
         }
     val intakePercentage = (intakeCnt * 100) / intakeTarget
 
-    Scaffold(
-        timeText = { TimeText() },
-        vignette = { Vignette(vignettePosition = VignettePosition.TopAndBottom) },
-        positionIndicator = { PositionIndicator(scalingLazyListState = scalingLazyListState) },
-    ) {
-        val coroutineScope = rememberCoroutineScope()
-        val focusRequester = remember { FocusRequester() }
-        LaunchedEffect(Unit) { focusRequester.requestFocus() }
-        ScalingLazyColumn(
-            modifier =
-                Modifier
-                    .onRotaryScrollEvent {
-                        coroutineScope.launch {
-                            scalingLazyListState.scrollBy(it.verticalScrollPixels)
-                            scalingLazyListState.animateScrollBy(0f)
-                        }
-                        true
-                    }.focusRequester(focusRequester)
-                    .focusable()
-                    .fillMaxSize()
-                    .testTag("lazyColumn"),
-            state = scalingLazyListState,
-            verticalArrangement = Arrangement.Center,
-        ) {
-            // title
-            item {
-                ListHeader {
-                    Text(text = stringResource(id = R.string.header_main_title))
-                }
-            }
+    AppScaffold {
+        val listState = rememberTransformingLazyColumnState()
+        val transformationSpec = rememberTransformationSpec()
 
-            // permission state
-            if (!permissionGranted) {
-                item {
-                    ListHeader {
-                        Text(text = stringResource(R.string.permission_not_granted_no_notif))
-                    }
-                }
-            }
-
-            // intake overview and mod
-            item {
-                AppCard(
-                    appImage = {
-                        Icon(
-                            imageVector = Icons.Rounded.LocalDrink,
-                            contentDescription = "none",
-                            modifier = Modifier.requiredSize(15.dp),
-                        )
+        ScreenScaffold(
+            scrollState = listState,
+            contentPadding =
+                rememberResponsiveColumnPadding(
+                    first = ColumnItemType.IconButton,
+                    last = ColumnItemType.Button,
+                ),
+            edgeButton = {
+                EdgeButton(
+                    onClick = {
+                        onEvent(HomeScreenEvents.OnAbout)
                     },
-                    appName = {
-                        Text(
-                            stringResource(R.string.target),
-                            color = MaterialTheme.colors.primary,
-                        )
-                    },
-                    time = {
-                        Text("$intakePercentage%", color = MaterialTheme.colors.secondary)
-                    },
-                    title = {
-                        Text(
-                            stringResource(R.string.daily_intake),
-                            color = MaterialTheme.colors.onSurface,
-                        )
-                    },
-                    modifier =
-                        Modifier
-                            .padding(2.dp)
-                            .padding(
-                                top = 5.dp,
-                            ),
-                    onClick = { onEvent(HomeScreenEvents.OnAddNewIntakeClick) },
+                    buttonSize = EdgeButtonSize.Medium,
+                    modifier = Modifier.testTag("About"),
                 ) {
-                    Column(modifier = Modifier.fillMaxWidth()) {
-                        Text(text = intakeStr, color = MaterialTheme.colors.primary)
+                    Icon(
+                        imageVector = Icons.Rounded.Info,
+                        contentDescription = "triggers about action",
+                    )
+
+                    Text(
+                        text = stringResource(R.string.about),
+                    )
+                }
+            },
+        ) { contentPadding ->
+
+            TransformingLazyColumn(
+                state = listState,
+                contentPadding = contentPadding,
+                modifier = Modifier.testTag("lazyColumn"),
+            ) {
+                // title
+                item {
+                    ListHeader(
+                        modifier =
+                            Modifier
+                                .fillMaxWidth()
+                                .transformedHeight(this, transformationSpec),
+                        transformation = SurfaceTransformation(transformationSpec),
+                    ) {
+                        Text(
+                            modifier = Modifier,
+                            textAlign = TextAlign.Center,
+                            text = stringResource(id = R.string.header_main_title),
+                        )
                     }
                 }
-            }
 
-            // intake history
-            item {
-                Chip(
-                    modifier =
-                        Modifier
-                            .padding(top = 10.dp),
-                    icon = {
-                        Icon(
-                            imageVector = Icons.Rounded.History,
-                            contentDescription = "triggers water intake history action",
-                            modifier = Modifier,
-                        )
-                    },
-                    label = {
+                // permission state
+                if (!permissionGranted) {
+                    item {
+                        ListHeader(
+                            modifier =
+                                Modifier
+                                    .fillMaxWidth()
+                                    .transformedHeight(this, transformationSpec),
+                            transformation = SurfaceTransformation(transformationSpec),
+                        ) {
+                            Text(
+                                modifier = Modifier,
+                                textAlign = TextAlign.Center,
+                                text = stringResource(R.string.permission_not_granted_no_notif),
+                            )
+                        }
+                    }
+                }
+
+                // intake overview and mod
+                item {
+                    AppCard(
+                        modifier =
+                            Modifier
+                                .fillMaxWidth()
+                                .transformedHeight(this, transformationSpec)
+                                .padding(2.dp),
+                        transformation = SurfaceTransformation(transformationSpec),
+                        appImage = {
+                            Icon(
+                                imageVector = Icons.Rounded.LocalDrink,
+                                contentDescription = "none",
+                                modifier = Modifier.requiredSize(15.dp),
+                            )
+                        },
+                        appName = {
+                            Text(
+                                stringResource(R.string.target),
+                            )
+                        },
+                        time = {
+                            Text("$intakePercentage%")
+                        },
+                        colors = CardDefaults.cardColors(),
+                        /*CardColors(
+                            containerColor = MaterialTheme.colorScheme.primaryDim,
+                            contentColor = MaterialTheme.colorScheme.onPrimary,
+                            appNameColor = MaterialTheme.colorScheme.onPrimary,
+                            timeColor = MaterialTheme.colorScheme.tertiary,
+                            titleColor = MaterialTheme.colorScheme.onPrimary,
+                            subtitleColor = MaterialTheme.colorScheme.onSecondary,
+                        ),*/
+                        title = {
+                            Text(
+                                stringResource(R.string.daily_intake),
+                            )
+                        },
+                        onClick = { onEvent(HomeScreenEvents.OnAddNewIntakeClick) },
+                    ) {
+                        Column(modifier = Modifier.fillMaxWidth()) {
+                            Text(text = intakeStr)
+                        }
+                    }
+                }
+
+                // intake history
+                item {
+                    TextButton(
+                        onClick = {
+                            onEvent(HomeScreenEvents.OnIntakeHistory)
+                        },
+                        modifier = Modifier.fillMaxWidth(),
+                        colors =
+                            TextButtonColors(
+                                containerColor = MaterialTheme.colorScheme.primaryDim,
+                                contentColor = MaterialTheme.colorScheme.onPrimary,
+                                disabledContainerColor = Color.Black,
+                                disabledContentColor = Color.Black,
+                            ),
+                    ) {
+                        Row(
+                            modifier =
+                            Modifier,
+                            horizontalArrangement = Arrangement.Center,
+                            verticalAlignment = Alignment.CenterVertically,
+                        ) {
+                            Icon(
+                                imageVector = Icons.Rounded.History,
+                                contentDescription = "triggers water intake history action",
+                            )
+                            Text(
+                                textAlign = TextAlign.Center,
+                                text = stringResource(R.string.intake_history),
+                            )
+                        }
+                    }
+                }
+
+                // header
+                item {
+                    ListHeader(
+                        modifier =
+                            Modifier
+                                .fillMaxWidth()
+                                .transformedHeight(this, transformationSpec),
+                        transformation = SurfaceTransformation(transformationSpec),
+                    ) {
                         Text(
-                            modifier = Modifier.fillMaxWidth(),
-                            color = MaterialTheme.colors.onSurface,
-                            text = stringResource(R.string.intake_history),
+                            modifier = Modifier,
+                            textAlign = TextAlign.Center,
+                            text = stringResource(R.string.tips),
                         )
-                    },
-                    colors =
-                        ChipDefaults.chipColors(
-                            backgroundColor = MyBlue,
-                        ),
-                    onClick = {
-                        onEvent(HomeScreenEvents.OnIntakeHistory)
-                    },
-                )
-            }
-
-            // header
-            item {
-                ListHeader {
-                    Text(text = stringResource(R.string.tips))
+                    }
                 }
-            }
 
-            // hydration tips
-            items(1) { index ->
-                Chip(
-                    modifier =
-                        Modifier
-                            .fillMaxWidth()
-                            .padding(top = 10.dp),
-                    icon = {
-                        when (index) {
-                            0 ->
-                                Icon(
-                                    imageVector = Icons.Rounded.SelfImprovement,
-                                    contentDescription = "triggers hydration tips action",
-                                    modifier = Modifier,
-                                )
+                // hydration tips
+                item {
+                    TextButton(
+                        modifier = Modifier.fillMaxWidth(),
+                        onClick = {
+                            onEvent(HomeScreenEvents.OnHydraTips)
+                        },
+                        colors =
+                            TextButtonColors(
+                                containerColor = MaterialTheme.colorScheme.secondaryDim,
+                                contentColor = MaterialTheme.colorScheme.onSecondary,
+                                disabledContainerColor = Color.Black,
+                                disabledContentColor = Color.Black,
+                            ),
+                    ) {
+                        Row(
+                            modifier =
+                            Modifier,
+                            horizontalArrangement = Arrangement.Center,
+                            verticalAlignment = Alignment.CenterVertically,
+                        ) {
+                            Icon(
+                                imageVector = Icons.Rounded.SelfImprovement,
+                                contentDescription = "triggers hydration tips action",
+                            )
+                            Text(
+                                textAlign = TextAlign.Center,
+                                text = stringResource(R.string.hydration_tips),
+                            )
                         }
-                    },
-                    colors =
-                        ChipDefaults.chipColors(
-                            backgroundColor = MyBlue,
-                        ),
-                    label = {
-                        when (index) {
-                            0 -> {
-                                Text(
-                                    modifier = Modifier.fillMaxWidth(),
-                                    color = MaterialTheme.colors.onPrimary,
-                                    text = stringResource(R.string.hydration_tips),
-                                )
-                            }
-                        }
-                    },
-                    onClick = {
-                        when (index) {
-                            0 -> {
-                                onEvent(HomeScreenEvents.OnHydraTips)
-                            }
-                        }
-                    },
-                )
-            }
-
-            // title
-            item {
-                ListHeader {
-                    Text(text = stringResource(R.string.personalization))
+                    }
                 }
-            }
 
-            // daily target & notifications, lang, & import/export
-            items(3) { index ->
-                Chip(
-                    modifier =
-                        Modifier
-                            .fillMaxWidth()
-                            .padding(top = 10.dp),
-                    icon = {
-                        when (index) {
-                            0 ->
-                                Icon(
-                                    imageVector = Icons.Rounded.CrisisAlert,
-                                    contentDescription = "triggers set target action",
-                                    modifier = Modifier,
-                                )
-
-                            1 ->
-                                Icon(
-                                    imageVector = Icons.Rounded.Settings,
-                                    contentDescription = "triggers settings action",
-                                    modifier = Modifier,
-                                )
-
-                            2 ->
-                                Icon(
-                                    imageVector = Icons.Rounded.Save,
-                                    contentDescription = "triggers Import/Export action",
-                                    modifier = Modifier,
-                                )
-                        }
-                    },
-                    colors =
-                        ChipDefaults.chipColors(
-                            backgroundColor = MyBlue,
-                        ),
-                    label = {
-                        when (index) {
-                            0 -> {
-                                Text(
-                                    modifier = Modifier.fillMaxWidth(),
-                                    color = MaterialTheme.colors.onSecondary,
-                                    text = stringResource(R.string.set_target),
-                                )
-                            }
-
-                            1 -> {
-                                Text(
-                                    modifier = Modifier.fillMaxWidth(),
-                                    color = MaterialTheme.colors.onPrimary,
-                                    text = stringResource(R.string.settings),
-                                )
-                            }
-
-                            2 -> {
-                                Text(
-                                    modifier = Modifier.fillMaxWidth(),
-                                    color = MaterialTheme.colors.onPrimary,
-                                    text = stringResource(R.string.import_export),
-                                )
-                            }
-                        }
-                    },
-                    onClick = {
-                        when (index) {
-                            0 -> {
-                                onEvent(HomeScreenEvents.OnSetTarget)
-                            }
-
-                            1 -> {
-                                onEvent(HomeScreenEvents.OnSettings)
-                            }
-
-                            2 -> {
-                                onEvent(HomeScreenEvents.OnImportExportData)
-                            }
-                        }
-                    },
-                )
-            }
-
-            // header
-            item {
-                ListHeader {
-                    Text(text = stringResource(R.string.misc))
+                // header
+                item {
+                    ListHeader(
+                        modifier =
+                            Modifier
+                                .fillMaxWidth()
+                                .transformedHeight(this, transformationSpec),
+                        transformation = SurfaceTransformation(transformationSpec),
+                    ) {
+                        Text(
+                            modifier = Modifier,
+                            textAlign = TextAlign.Center,
+                            text = stringResource(R.string.personalization),
+                        )
+                    }
                 }
-            }
 
-            // about
-            items(1) { index ->
-                Chip(
-                    modifier =
-                        Modifier
-                            .fillMaxWidth()
-                            .padding(top = 10.dp),
-                    icon = {
-                        when (index) {
-                            0 ->
-                                Icon(
-                                    imageVector = Icons.Rounded.Info,
-                                    contentDescription = "triggers about action",
-                                    modifier = Modifier,
-                                )
-                        }
-                    },
-                    label = {
-                        when (index) {
-                            0 -> {
-                                Text(
-                                    modifier = Modifier.fillMaxWidth(),
-                                    color = MaterialTheme.colors.onSecondary,
-                                    text = stringResource(R.string.about),
-                                )
+                // daily target & notifications, lang, & import/export
+                items(3) { index ->
+                    TextButton(
+                        modifier = Modifier.fillMaxWidth(.8F),
+                        onClick = {
+                            when (index) {
+                                0 -> {
+                                    onEvent(HomeScreenEvents.OnSetTarget)
+                                }
+
+                                1 -> {
+                                    onEvent(HomeScreenEvents.OnSettings)
+                                }
+
+                                2 -> {
+                                    onEvent(HomeScreenEvents.OnImportExportData)
+                                }
+                            }
+                        },
+                        colors =
+                            TextButtonColors(
+                                containerColor = MaterialTheme.colorScheme.secondaryDim,
+                                contentColor = MaterialTheme.colorScheme.onSecondary,
+                                disabledContainerColor = Color.Black,
+                                disabledContentColor = Color.Black,
+                            ),
+                    ) {
+                        Row(
+                            modifier =
+                            Modifier,
+                            horizontalArrangement = Arrangement.Center,
+                            verticalAlignment = Alignment.CenterVertically,
+                        ) {
+                            when (index) {
+                                0 -> {
+                                    Icon(
+                                        imageVector = Icons.Rounded.CrisisAlert,
+                                        contentDescription = "triggers set target action",
+                                    )
+                                }
+
+                                1 -> {
+                                    Icon(
+                                        imageVector = Icons.Rounded.Settings,
+                                        contentDescription = "triggers settings action",
+                                    )
+                                }
+
+                                2 -> {
+                                    Icon(
+                                        imageVector = Icons.Rounded.Save,
+                                        contentDescription = "triggers Import/Export action",
+                                    )
+                                }
+                            }
+                            when (index) {
+                                0 -> {
+                                    Text(
+                                        textAlign = TextAlign.Center,
+                                        text = stringResource(R.string.set_target),
+                                    )
+                                }
+
+                                1 -> {
+                                    Text(
+                                        textAlign = TextAlign.Center,
+                                        text = stringResource(R.string.settings),
+                                    )
+                                }
+
+                                2 -> {
+                                    Text(
+                                        textAlign = TextAlign.Center,
+                                        text = stringResource(R.string.import_export),
+                                    )
+                                }
                             }
                         }
-                    },
-                    onClick = {
-                        when (index) {
-                            0 -> {
-                                onEvent(HomeScreenEvents.OnAbout)
-                            }
-                        }
-                    },
-                )
+                    }
+                }
+
+                // header
+                item {
+                    ListHeader(
+                        modifier =
+                            Modifier
+                                .fillMaxWidth()
+                                .transformedHeight(this, transformationSpec),
+                        transformation = SurfaceTransformation(transformationSpec),
+                    ) {
+                        Text(
+                            modifier = Modifier,
+                            textAlign = TextAlign.Center,
+                            text = stringResource(R.string.misc),
+                        )
+                    }
+                }
             }
         }
     }

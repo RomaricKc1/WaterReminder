@@ -17,6 +17,19 @@ interface WaterIntakeDao {
     @Query("SELECT * FROM waterintake")
     fun getAllIntake(): Flow<List<WaterIntake>> // return a flow, we can call count and collect
 
+    suspend fun getAllToStr(): String? {
+        // retrieve the data from the database
+        val data = getAllIntake().firstOrNull() ?: return null
+        var stream = ""
+        var idx = 1
+        for (item in data) {
+            stream += "$idx,${item.timestamp}\n"
+            idx += 1
+        }
+        return stream
+    }
+
+    @Deprecated("Using file system. I don't like it anymore. Use http server comm")
     suspend fun getAllAndExportToFile(filePath: String): Int {
         // retrieve the data from the database
         val data = getAllIntake().firstOrNull() ?: return -1
@@ -29,6 +42,25 @@ interface WaterIntakeDao {
 
     // @Query("DELETE FROM waterintake")
     // fun deleteAll()
+
+    fun importFromStr(stream: String): Int? {
+        val data =
+            stream.split("\n").map { line ->
+                // fmt is "id,timestamp"
+                val (_, timestamp) = line.split(",")
+                WaterIntake(null, timestamp.toLongOrNull())
+            }
+
+        if (!data.isEmpty()) {
+            // deleteAll() // clear the existing data in the database
+            insertAll(data) // insert the imported data back to the database
+            Log.i("import dao", "done")
+            return 0
+        }
+        return null
+    }
+
+    @Deprecated("Using file system. I don't like it anymore. Use http server comm")
     fun importFromFile(filePath: String): Int {
         val data = getEntriesFromFile(filePath)
 

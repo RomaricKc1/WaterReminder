@@ -14,9 +14,15 @@ interface WaterIntakeRepository {
         endTimestamp: Long,
     ): Flow<List<WaterIntake>>
 
+    @Deprecated("Using file system. I don't like it anymore. Use http server comm")
     fun importFromFile(filePath: String): Int
 
+    fun importFromStr(stream: String): Int?
+
+    @Deprecated("Using file system. I don't like it anymore. Use http server comm")
     suspend fun getAllAndExportToFile(filePath: String): Int
+
+    suspend fun getAllToStr(): String?
 
     fun getCount(): Flow<Int>
 

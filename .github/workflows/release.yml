@@ -6,6 +6,7 @@ on:
       version:
         description: "Version"
         required: true
+
 jobs:
   draft-release:
     runs-on: ubuntu-latest
@@ -14,17 +15,28 @@ jobs:
       contents: write
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
+        with:
+          submodules: "recursive"
 
       - name: Setup Gradle
-        uses: gradle/actions/setup-gradle@v4
+        uses: gradle/actions/setup-gradle@v5
 
       - name: set up JDK
-        uses: actions/setup-java@v4
+        uses: actions/setup-java@v5
         with:
-          java-version: 23
+          java-version: 25
           distribution: "temurin"
           cache: gradle
+
+      - name: Install stable rust
+        uses: dtolnay/rust-toolchain@stable
+
+      - uses: Swatinem/rust-cache@v2
+        with:
+          cache-all-crates: "true"
+          workspaces: |
+            import_export_helper/
 
       - name: Build release APK
         run: |
@@ -41,11 +53,19 @@ jobs:
           keyPassword: ${{ secrets.KEY_PASSWD }}
           buildToolsVersion: 35.0.0
 
-      - name: prepare .tar.xz
+      - name: Cargo build
+        run: |
+          cd ./import_export_helper/
+          cargo build --release --bin watchAppHelper
+          echo "tui mode"
+          cargo build --release --bin watchAppHelper-Tui
+
+      - name: prepare .tar.xz containing all binaries and app
         run: |
           mkdir app-out
-          mv ${{ steps.sign_app.outputs.signedFile }} ./app-v${{ github.event.inputs.version }}-release-signed.apk
-          mv ./app-v${{ github.event.inputs.version }}-release-signed.apk ./app-out
+          mv ${{ steps.sign_app.outputs.signedFile }} ./app-out/app-v${{ github.event.inputs.version }}-release-signed.apk
+          mv import_export_helper/target/release/watchAppHelper ./app-out/watchAppHelper-v${{ github.event.inputs.version }}
+          mv import_export_helper/target/release/watchAppHelper-Tui ./app-out/watchAppHelper-Tui-v${{ github.event.inputs.version }}
 
       - name: Create app tar
         run: |
@@ -56,5 +76,9 @@ jobs:
         with:
           draft: true
           tag_name: v${{ github.event.inputs.version }}
-          files: app-v${{ github.event.inputs.version }}.tar.xz
+          files: |
+            app-v${{ github.event.inputs.version }}.tar.xz
+            ./app-out/app-v${{ github.event.inputs.version }}-release-signed.apk
+            ./app-out/watchAppHelper-v${{ github.event.inputs.version }}
+            ./app-out/watchAppHelper-Tui-v${{ github.event.inputs.version }}
           fail_on_unmatched_files: true

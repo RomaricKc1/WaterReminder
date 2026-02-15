@@ -65,8 +65,12 @@ class BaseTest {
     fun `averageToMonth functionality`() {
         val res = averageToMonth(mapData)
         val currentMonth = Calendar.getInstance().get(Calendar.MONTH) + 1
+        val sumUpToMonth =
+            (1 until currentMonth + 1).sumOf { index ->
+                mapData.getOrDefault(index, 0)
+            }
 
-        assertEquals(res, (mapData.values.sum().toFloat() / currentMonth))
+        assertEquals(res, (sumUpToMonth.toFloat() / currentMonth))
     }
 
     /*@Test
@@ -89,7 +93,7 @@ class BaseTest {
     fun `getTimeTxt functionality`() {
         // dd/MM/yyyy HH:mm:ss
         // Friday, March 31, 2023 7:18:08 PM
-        val res = getTimeTxt(1680290288000)
+        val res = getTimeTxt(1680290288000, explicitUTC = true)
         assertEquals(res, "31/03/2023 19:18:08")
     }
 }

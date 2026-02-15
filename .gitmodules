@@ -1,0 +1,3 @@
+[submodule "import_export_helper"]
+	path = import_export_helper
+	url = git@github.com:RomaricKc1/water_reminder-backup_restore.git

@@ -1,10 +1,10 @@
 [versions]
 accompanist-permissions = "0.37.3"
-activity-compose = "1.12.2"
+activity-compose = "1.12.4"
 agp = "8.13.2"
 androidlib = "8.13.2"
 coil-compose = "2.7.0"
-compose-version = '1.10.0'
+compose-version = '1.10.3'
 core-ktx = "1.17.0"
 coroutines-version = "1.10.2"
 datastore-preferences = "1.2.0"
@@ -14,26 +14,31 @@ hilt-comp = "1.3.0"
 hilt-lifecyle-viewmodel-compose = "1.3.0"
 hilt-work = "1.3.0"
 horologist = '0.7.15'
-kotlin = "2.3.0"
-kotlin-metadata-jvm = "2.3.0-Beta1"
+kotlin = "2.3.10"
+kotlin-metadata-jvm = "2.3.0"
 ksp = "2.3.4"
 layout = "1.0.0"
 legacy-v4 = "1.0.0"
 lifecycle-runtime-ktx = "2.10.0"
-material = "1.13.0"
+material3 = "1.4.0"
 material-icon = "1.7.8"
-navigation-ui-ktx = "2.9.6"
+navigation-ui-ktx = "2.9.7"
+okhttp="5.3.2"
 play-service = "19.0.0"
+protoLayoutVersion = "1.3.0"
 recyclerview = "1.4.0"
+retrofit="3.0.0"
 room = "2.8.4"
 rules = "1.7.0"
 runner = "1.7.0"
-runtime-livedata = "1.10.0"
+runtime-livedata = "1.10.3"
 test-core = "1.7.0"
 wear = "1.3.0"
 wear-compose-version = '1.5.6'
 wear-tooling = "1.0.0"
-work-runtime = "2.11.0"
+work-runtime = "2.11.1"
+zstd-jni = "1.5.7-7"
+zxing-core = "3.5.4"
 
 
 [libraries]
@@ -41,8 +46,7 @@ accompanist-permissions = { group = "com.google.accompanist", name = "accompanis
 activity-compose = { group = "androidx.activity", name = "activity-compose", version.ref = "activity-compose" }
 coil-compose = { group = "io.coil-kt", name = "coil-compose", version.ref = "coil-compose" }
 compose-foundation = { group = "androidx.wear.compose", name = "compose-foundation", version.ref = "wear-compose-version" }
-compose-found = { group = "androidx.compose.foundation", name = "foundation", version.ref = "compose-version" }
-compose-material = { group = "androidx.wear.compose", name = "compose-material", version.ref = "wear-compose-version" }
+compose-material3 = { group = "androidx.wear.compose", name = "compose-material3", version.ref = "wear-compose-version" }
 compose-navigation = { group = "androidx.wear.compose", name = "compose-navigation", version.ref = "wear-compose-version" }
 compose-ui = { group = "androidx.compose.ui", name = "ui", version.ref = "compose-version" }
 compose-ui-test-junit4 = { group = "androidx.compose.ui", name = "ui-test-junit4", version.ref = "compose-version" }
@@ -58,6 +62,7 @@ hilt-android-testing = { group = "com.google.dagger", name = "hilt-android-testi
 hilt-compiler = { group = "androidx.hilt", name = "hilt-compiler", version.ref = "hilt-comp" }
 hilt-lifecycle-viewmodel = { group = "androidx.hilt", name = "hilt-lifecycle-viewmodel-compose", version.ref = "hilt-lifecyle-viewmodel-compose" }
 hilt-work = { group = "androidx.hilt", name = "hilt-work", version.ref = "hilt-work" }
+horologist-compose-layout = { group = "com.google.android.horologist", name = "horologist-compose-layout", version.ref = "horologist" }
 horologist-compose-tools = { group = "com.google.android.horologist", name = "horologist-compose-tools", version.ref = "horologist" }
 horologist-tiles = { group = "com.google.android.horologist", name = "horologist-tiles", version.ref = "horologist" }
 kotlin-metadata-jvm = {group = "org.jetbrains.kotlin", name = "kotlin-metadata-jvm", version.ref = "kotlin-metadata-jvm" }
@@ -65,12 +70,15 @@ kotlin-test = { group = "org.jetbrains.kotlin", name = "kotlin-test", version.re
 kotlinx-coroutines-test = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-test", version.ref = "coroutines-version" }
 legacy-v4 = { group = "androidx.legacy", name = "legacy-support-v4", version.ref = "legacy-v4" }
 lifecycle-runtime-ktx = { group = "androidx.lifecycle", name = "lifecycle-runtime-ktx", version.ref = "lifecycle-runtime-ktx" }
-material = { group = "com.google.android.material", name = "material", version.ref = "material" }
+material3 = { group = "androidx.compose.material3", name = "material3", version.ref = "material3" }
 material-icons-core = { group = "androidx.compose.material", name = "material-icons-core", version.ref = "material-icon" }
 material-icons-extended = { group = "androidx.compose.material", name = "material-icons-extended", version.ref = "material-icon" }
 navigation-ui-ktx = { group = "androidx.navigation", name = "navigation-ui-ktx", version.ref = "navigation-ui-ktx" }
 perc-layout = { group = "androidx.percentlayout", name = "percentlayout", version.ref = "layout" }
 play-service = { group = "com.google.android.gms", name = "play-services-wearable", version.ref = "play-service" }
+protolayout = { group = "androidx.wear.protolayout", name="protolayout", version.ref = "protoLayoutVersion" }
+protolayout-expression = { group = "androidx.wear.protolayout", name = "protolayout-expression", version.ref = "protoLayoutVersion" }
+protolayout-material3 = { group = "androidx.wear.protolayout", name = "protolayout-material3", version.ref = "protoLayoutVersion" }
 recyclerview = { group = "androidx.recyclerview", name = "recyclerview", version.ref = "recyclerview" }
 room-compiler = { group = "androidx.room", name = "room-compiler", version.ref = "room" }
 room-ktx = { group = "androidx.room", name = "room-ktx", version.ref = "room" }
@@ -78,10 +86,15 @@ room-runtime = { group = "androidx.room", name = "room-runtime", version.ref = "
 rules = { group = "androidx.test", name = "rules", version.ref = "rules" }
 runner = { group = "androidx.test", name = "runner", version.ref = "runner" }
 runtime-livedata = { group = "androidx.compose.runtime", name = "runtime-livedata", version.ref = "runtime-livedata" }
+squareup-okhttp = {group="com.squareup.okhttp3", name="okhttp", version.ref="okhttp"}
+squareup-retrofit2-converter-gson = {group="com.squareup.retrofit2", name="converter-gson", version.ref="retrofit"}
+squareup-retrofit2 = {group="com.squareup.retrofit2", name="retrofit", version.ref="retrofit"}
 test-core = { group = "androidx.test", name = "core", version.ref = "test-core" }
 wear = { group = "androidx.wear", name = "wear", version.ref = "wear" }
 wear-tooling-preview = { group = "androidx.wear", name = "wear-tooling-preview", version.ref = "wear-tooling" }
 work-runtime = { group = "androidx.work", name = "work-runtime", version.ref = "work-runtime" }
+zstd-jni = { group = "com.github.luben", name = "zstd-jni", version.ref = "zstd-jni" }
+zxing-core = { group = "com.google.zxing", name = "core", version.ref = "zxing-core" }
 
 
 [plugins]

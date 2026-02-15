@@ -13,7 +13,6 @@ import androidx.work.Worker
 import androidx.work.WorkerParameters
 import com.romarickc.reminder.R
 import com.romarickc.reminder.commons.Constants.DB_NOTIF_LEVEL_IDX
-import com.romarickc.reminder.commons.Constants.NOTIF_ONE_HOUR_MODE
 import com.romarickc.reminder.commons.Constants.ONE_HOUR_INTERVAL
 import com.romarickc.reminder.commons.Constants.TIME_22_H_INCLUS
 import com.romarickc.reminder.commons.Constants.TIME_8_AM_INCLUS
@@ -136,7 +135,12 @@ class DrinkWaterReceiver : BroadcastReceiver() {
             // change the next notification date
             // update the worker to not send any notification that is like a minute away
             val notifPref =
-                repository.getNotifPref(DB_NOTIF_LEVEL_IDX).firstOrNull() ?: NOTIF_ONE_HOUR_MODE
+                E_NotifPeriod.fromValue(
+                    repository
+                        .getNotifPref(
+                            DB_NOTIF_LEVEL_IDX,
+                        ).firstOrNull() ?: E_NotifPeriod.ONE_HOUR_MODE.value,
+                )
             reSchedPeriodicWork(
                 context = context,
                 notifPref = notifPref,

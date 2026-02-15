@@ -12,10 +12,10 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import androidx.wear.compose.material.AppCard
-import androidx.wear.compose.material.Icon
-import androidx.wear.compose.material.MaterialTheme
-import androidx.wear.compose.material.Text
+import androidx.wear.compose.material3.AppCard
+import androidx.wear.compose.material3.Icon
+import androidx.wear.compose.material3.MaterialTheme
+import androidx.wear.compose.material3.Text
 import com.romarickc.reminder.R
 import com.romarickc.reminder.commons.Routes
 import com.romarickc.reminder.commons.UiEvent
@@ -36,13 +36,13 @@ val paint =
 val paint2 =
     android.graphics.Paint().apply {
         textAlign = android.graphics.Paint.Align.CENTER
-        textSize = 25f
+        textSize = 15f
         color = Color.White.toArgb()
     }
 val paint3 =
     android.graphics.Paint().apply {
         textAlign = android.graphics.Paint.Align.CENTER
-        textSize = 21f
+        textSize = 15f
         color = Color.White.toArgb()
     }
 
@@ -84,6 +84,7 @@ class IntakeHistoryViewModel
                     )
                     println("navigating to days graph")
                 }
+
                 // days graph
                 is IntakeHistoryEvents.OnSeeMonthsIntakeGraphClick -> {
                     emitEvent(
@@ -117,9 +118,9 @@ fun SimpleCard(
                 modifier = Modifier.requiredSize(15.dp),
             )
         },
-        appName = { Text(stringResource(R.string.intake), color = MaterialTheme.colors.primary) },
-        time = { Text(time, color = MaterialTheme.colors.secondary) },
-        title = { Text(title, color = MaterialTheme.colors.onSurface) },
+        appName = { Text(stringResource(R.string.intake), color = MaterialTheme.colorScheme.primary) },
+        time = { Text(time, color = MaterialTheme.colorScheme.secondary) },
+        title = { Text(title, color = MaterialTheme.colorScheme.onSurface) },
         modifier = Modifier.padding(2.dp),
         onClick = {},
     ) {

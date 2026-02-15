@@ -29,6 +29,7 @@ android {
         release {
             isMinifyEnabled = true
             isDebuggable = false
+            isShrinkResources = true
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro",
@@ -85,9 +86,8 @@ dependencies {
     implementation(libs.accompanist.permissions)
     implementation(libs.activity.compose)
     implementation(libs.coil.compose)
-    implementation(libs.compose.found)
     implementation(libs.compose.foundation)
-    implementation(libs.compose.material)
+    implementation(libs.compose.material3)
     implementation(libs.compose.navigation)
     implementation(libs.compose.ui)
     implementation(libs.compose.ui.tooling.preview)
@@ -97,27 +97,39 @@ dependencies {
     implementation(libs.hilt.android)
     implementation(libs.hilt.lifecycle.viewmodel)
     implementation(libs.hilt.work)
+    implementation(libs.horologist.compose.layout)
     implementation(libs.horologist.compose.tools)
     implementation(libs.horologist.tiles)
     implementation(libs.legacy.v4)
     implementation(libs.lifecycle.runtime.ktx)
-    implementation(libs.material)
+    implementation(libs.material3)
     implementation(libs.material.icons.core)
     implementation(libs.material.icons.extended)
     implementation(libs.navigation.ui.ktx)
     implementation(libs.perc.layout)
     implementation(libs.play.service)
+    implementation(libs.protolayout)
+    implementation(libs.protolayout.expression)
+    implementation(libs.protolayout.material3)
     implementation(libs.recyclerview)
     implementation(libs.room.ktx)
     implementation(libs.room.runtime)
     implementation(libs.rules)
+    implementation(libs.runner)
     implementation(libs.runtime.livedata)
+    implementation(libs.squareup.okhttp)
+    implementation(libs.squareup.retrofit2)
+    implementation(libs.squareup.retrofit2.converter.gson)
+    implementation(libs.test.core)
     implementation(libs.wear)
     implementation(libs.wear.tooling.preview)
     implementation(libs.work.runtime)
-
-    implementation(libs.runner)
-    implementation(libs.test.core)
+    implementation(libs.zstd.jni) {
+        artifact {
+            type = "aar"
+        }
+    }
+    implementation(libs.zxing.core)
 
     debugImplementation(libs.compose.ui.tooling)
 

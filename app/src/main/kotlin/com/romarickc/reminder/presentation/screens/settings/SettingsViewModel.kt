@@ -4,6 +4,7 @@ import android.app.Application
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.romarickc.reminder.commons.Constants.DB_NOTIF_LEVEL_IDX
@@ -13,6 +14,7 @@ import com.romarickc.reminder.commons.Constants.LANG_FR
 import com.romarickc.reminder.commons.Constants.LANG_KEY
 import com.romarickc.reminder.commons.Constants.SHARED_DATA
 import com.romarickc.reminder.commons.E_Languages
+import com.romarickc.reminder.commons.E_NotifPeriod
 import com.romarickc.reminder.commons.Routes
 import com.romarickc.reminder.commons.UiEvent
 import com.romarickc.reminder.commons.UiEvent.Navigate
@@ -53,10 +55,14 @@ class SettingsViewModel
                 LANG_FR -> {
                     E_Languages.FRANCAIS
                 }
+
                 LANG_EN -> {
                     E_Languages.ENGLISH
                 }
-                else -> E_Languages.FRANCAIS
+
+                else -> {
+                    E_Languages.FRANCAIS
+                }
             }
 
         init {
@@ -68,7 +74,7 @@ class SettingsViewModel
         fun onEvent(event: SettingsEvents) {
             when (event) {
                 is SettingsEvents.OnNotifValueChange -> {
-                    onNotifUpdate(event.q)
+                    onNotifUpdate(E_NotifPeriod.fromValue(event.q))
                 }
 
                 is SettingsEvents.OnLanguageChange -> {
@@ -105,17 +111,34 @@ class SettingsViewModel
             }
         }
 
-        private fun onNotifUpdate(query: Int) {
+        private fun onNotifUpdate(pref: E_NotifPeriod) {
+            var level: Int = -1
+
             viewModelScope.launch {
+                level =
+                    when (pref) {
+                        E_NotifPeriod.ONE_HOUR_MODE -> {
+                            E_NotifPeriod.toValue(E_NotifPeriod.ONE_HOUR_MODE)
+                        }
+
+                        E_NotifPeriod.THREE_HOURS_MODE -> {
+                            E_NotifPeriod.toValue(E_NotifPeriod.THREE_HOURS_MODE)
+                        }
+
+                        E_NotifPeriod.DISABLED_MODE -> {
+                            E_NotifPeriod.toValue(E_NotifPeriod.DISABLED_MODE)
+                        }
+                    }
+
                 repository.updateNotifPref(
-                    Preferences(DB_NOTIF_LEVEL_IDX, query),
+                    Preferences(DB_NOTIF_LEVEL_IDX, level),
                 )
                 reSchedPeriodicWork(
                     context = application,
-                    notifPref = query,
+                    notifPref = pref,
                     careAboutDisabled = true,
                 )
-                // Log.i("settings", "notification pref updated ${event.q}")
+                Log.i("settings", "notification pref updated $level")
                 _uiEvent.emit(UiEvent.PopBackStack)
             }
         }

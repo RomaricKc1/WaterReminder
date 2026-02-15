@@ -1,6 +1,7 @@
 package com.romarickc.reminder.commons
 
 import android.Manifest
+import android.app.Application
 import android.app.NotificationChannel
 import android.app.PendingIntent
 import android.content.Context
@@ -8,6 +9,7 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.content.res.Configuration
 import android.util.Log
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.res.stringResource
@@ -17,19 +19,18 @@ import androidx.core.app.NotificationManagerCompat
 import androidx.core.content.edit
 import androidx.core.os.LocaleListCompat
 import androidx.wear.protolayout.ActionBuilders
-import androidx.wear.protolayout.LayoutElementBuilders
 import androidx.wear.protolayout.LayoutElementBuilders.LayoutElement
-import androidx.wear.protolayout.ModifiersBuilders
-import androidx.wear.protolayout.ModifiersBuilders.Clickable
 import androidx.wear.protolayout.TimelineBuilders.Timeline
-import androidx.wear.protolayout.TimelineBuilders.TimelineEntry
+import androidx.wear.tiles.RequestBuilders
 import androidx.work.Constraints
 import androidx.work.ExistingPeriodicWorkPolicy
 import androidx.work.ListenableWorker
 import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
+import com.github.luben.zstd.Zstd
 import com.romarickc.reminder.R
 import com.romarickc.reminder.commons.Constants.DAY_SEC
+import com.romarickc.reminder.commons.Constants.DB_NOTIF_LEVEL_IDX
 import com.romarickc.reminder.commons.Constants.DEF_LANG
 import com.romarickc.reminder.commons.Constants.HOUR_SEC
 import com.romarickc.reminder.commons.Constants.IMPORT_FILE_PREFIX
@@ -37,17 +38,20 @@ import com.romarickc.reminder.commons.Constants.LANG_EN
 import com.romarickc.reminder.commons.Constants.LANG_FR
 import com.romarickc.reminder.commons.Constants.LANG_KEY
 import com.romarickc.reminder.commons.Constants.MIN_SEC
-import com.romarickc.reminder.commons.Constants.NOTIF_DISABLED_MODE
-import com.romarickc.reminder.commons.Constants.NOTIF_ONE_HOUR_MODE
-import com.romarickc.reminder.commons.Constants.NOTIF_THREE_HOURS_MODE
 import com.romarickc.reminder.commons.Constants.ONE_HOUR_INTERVAL
+import com.romarickc.reminder.commons.Constants.SERVER_ADDR
+import com.romarickc.reminder.commons.Constants.SERVER_ADDR_KEY
 import com.romarickc.reminder.commons.Constants.SHARED_DATA
 import com.romarickc.reminder.commons.Constants.THREE_HOURS_INTERVAL
 import com.romarickc.reminder.commons.Constants.WORKER_TAG_NAME
 import com.romarickc.reminder.commons.Constants.YEAR_SEC
 import com.romarickc.reminder.domain.model.WaterIntake
+import com.romarickc.reminder.domain.repository.CommRepository
+import com.romarickc.reminder.domain.repository.WaterIntakeRepository
 import com.romarickc.reminder.presentation.MainActivity
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.withContext
 import java.io.BufferedWriter
 import java.io.File
@@ -56,9 +60,12 @@ import java.io.IOException
 import java.io.OutputStreamWriter
 import java.text.SimpleDateFormat
 import java.time.Instant
+import java.time.ZoneId
+import java.time.ZonedDateTime
 import java.util.Calendar
 import java.util.Date
 import java.util.Locale
+import java.util.TimeZone
 import java.util.concurrent.TimeUnit
 
 fun storeSharedPref(
@@ -96,10 +103,14 @@ fun loadLanguage(context: Context) {
         )
     var locale: Locale = Locale.FRENCH
     when (lang) {
-        LANG_FR ->
+        LANG_FR -> {
             locale = Locale.FRENCH
-        LANG_EN ->
+        }
+
+        LANG_EN -> {
             locale = Locale.ENGLISH
+        }
+
         else -> {}
     }
     println("Loading language -> $locale")
@@ -110,7 +121,7 @@ fun loadLanguage(context: Context) {
     val configuration = Configuration()
     configuration.setLocale(locale)
     configuration.setLayoutDirection(locale)
-    // createConfigurationContext(configuration)
+    // context.createConfigurationContext(configuration)
     context.resources.updateConfiguration(
         configuration,
         context.resources.displayMetrics,
@@ -159,43 +170,59 @@ fun getTimeAgo(timestamp: Long): String {
     // TODO, implement leap year version also
     val currentTime = Instant.now().toEpochMilli()
     val timeDiff = (currentTime - timestamp) / 1000
+
     // timeDiff in s
     return when {
-        timeDiff < MIN_SEC -> stringResource(R.string.just_now)
-        timeDiff < HOUR_SEC ->
+        timeDiff < MIN_SEC -> {
+            stringResource(R.string.just_now)
+        }
+
+        timeDiff < HOUR_SEC -> {
             if (timeDiff / MIN_SEC > 1) {
                 stringResource(R.string.minutes_ago).format(timeDiff / MIN_SEC)
             } else {
                 stringResource(R.string.minute_ago).format(timeDiff / MIN_SEC)
-            } // less than an hour (59m)
+            }
+        }
 
-        timeDiff < DAY_SEC ->
+        // less than an hour (59m)
+        timeDiff < DAY_SEC -> {
             if (timeDiff / HOUR_SEC > 1) {
                 stringResource(R.string.hours_ago).format(timeDiff / HOUR_SEC)
             } else {
                 stringResource(R.string.hour_ago).format(timeDiff / HOUR_SEC)
-            } // 23h
+            }
+        }
 
-        timeDiff < YEAR_SEC ->
+        // 23h
+        timeDiff < YEAR_SEC -> {
             if (timeDiff / DAY_SEC > 1) {
                 stringResource(R.string.days_ago).format(timeDiff / DAY_SEC)
             } else {
                 stringResource(R.string.day_ago).format(timeDiff / DAY_SEC)
-            } // 365
+            }
+        }
 
-        else ->
+        // 365
+        else -> {
             if (timeDiff / YEAR_SEC > 1) {
                 stringResource(R.string.years_ago).format(timeDiff / YEAR_SEC)
             } else {
                 stringResource(R.string.year_ago).format(timeDiff / YEAR_SEC)
-            } // xyo
+            }
+        } // xyo
     }
 }
 
-fun getTimeTxt(timestamp: Long): String {
+fun getTimeTxt(
+    timestamp: Long,
+    explicitUTC: Any? = null,
+): String {
     val date = Date(timestamp)
     val dateFormat = SimpleDateFormat("dd/MM/yyyy HH:mm:ss", Locale.getDefault())
-
+    if (explicitUTC != null) {
+        dateFormat.timeZone = TimeZone.getTimeZone("UTC")
+    }
     return dateFormat.format(date)
 }
 
@@ -203,18 +230,27 @@ fun getTimeTxt(timestamp: Long): String {
 // periodic worker
 suspend fun reSchedPeriodicWork(
     context: Context,
-    notifPref: Int,
+    notifPref: E_NotifPeriod,
     careAboutDisabled: Boolean,
 ) {
     when (notifPref) {
-        NOTIF_THREE_HOURS_MODE -> {
+        E_NotifPeriod.ONE_HOUR_MODE -> {
+            Log.i("settings", "1h mode notif")
+            updatePeriodicWorkInterval(
+                context = context,
+                interval = ONE_HOUR_INTERVAL.toLong(),
+            )
+        }
+
+        E_NotifPeriod.THREE_HOURS_MODE -> {
+            Log.i("settings", "3h mode notif")
             updatePeriodicWorkInterval(
                 context = context,
                 interval = THREE_HOURS_INTERVAL.toLong(),
             )
         }
 
-        NOTIF_DISABLED_MODE -> {
+        E_NotifPeriod.DISABLED_MODE -> {
             if (careAboutDisabled) {
                 // cancel/disable
                 WorkManager
@@ -233,13 +269,6 @@ suspend fun reSchedPeriodicWork(
             }
             // else notification disabled, so I don't care
         }
-
-        NOTIF_ONE_HOUR_MODE -> {
-            updatePeriodicWorkInterval(
-                context = context,
-                interval = ONE_HOUR_INTERVAL.toLong(),
-            )
-        }
     }
 }
 
@@ -253,7 +282,22 @@ fun updatePeriodicWorkInterval(
             .getWorkInfosByTag(WORKER_TAG_NAME)
             .get()
 
-    Log.i("worker settings", "current cancelling and recreating $workInfos")
+    val dtNow =
+        Instant
+            .ofEpochSecond(System.currentTimeMillis() / 1000L)
+            .atZone(ZoneId.systemDefault())
+            .toLocalDateTime()
+
+    var dtNext =
+        Instant
+            .ofEpochSecond(workInfos[0].nextScheduleTimeMillis / 1000L)
+            .atZone(ZoneId.systemDefault())
+            .toLocalDateTime()
+
+    Log.i("worker settings", "current time $dtNow")
+    Log.i("worker settings", "current worker $workInfos")
+    Log.i("worker settings", "current next-sched $dtNext, requested interval -> $interval")
+
     val workRequest =
         PeriodicWorkRequestBuilder<WaterReminderWorker>(
             interval,
@@ -278,7 +322,13 @@ fun updatePeriodicWorkInterval(
             .getWorkInfosByTag(WORKER_TAG_NAME)
             .get()
 
-    Log.i("worker settings", "new one -> $workInfos")
+    dtNext =
+        Instant
+            .ofEpochSecond(workInfos[0].nextScheduleTimeMillis / 1000L)
+            .atZone(ZoneId.systemDefault())
+            .toLocalDateTime()
+    Log.i("worker settings", "cancelled and recreated new one -> $workInfos")
+    Log.i("worker settings", "next-sched $dtNext")
 }
 
 fun startPeriodicWork(
@@ -325,6 +375,7 @@ fun startPeriodicWork(
 
 // /////////////////////////////////////////////////////////////////////////////////////////////////
 // import export
+@Deprecated("Using file system. I don't like it anymore. Use http server comm")
 fun getFileToImport(thePath: String): File {
     val availableForImport = mutableListOf<File>()
 
@@ -358,6 +409,7 @@ fun getFileToImport(thePath: String): File {
     return pickedFile
 }
 
+@Deprecated("Using file system. I don't like it anymore. Use http server comm")
 fun getEntriesFromFile(thePath: String): List<WaterIntake>? {
     try {
         // val documentsDirectory =
@@ -380,6 +432,7 @@ fun getEntriesFromFile(thePath: String): List<WaterIntake>? {
     }
 }
 
+@Deprecated("Using file system. I don't like it anymore. Use http server comm")
 suspend fun exportToFile(
     thePath: String,
     data: List<WaterIntake>,
@@ -418,6 +471,99 @@ suspend fun exportToFile(
         Log.i("export-e", "$e")
         return -1
     }
+}
+
+suspend fun exportToSever(
+    application: Application,
+    repository: WaterIntakeRepository,
+    commRepository: CommRepository,
+): ByteArray? {
+    val stream = repository.getAllToStr()
+    val duration = Toast.LENGTH_SHORT
+
+    if (stream == null) {
+        val toast =
+            Toast.makeText(
+                application,
+                application
+                    .getString(R.string.empty_export),
+                duration,
+            )
+
+        toast.show()
+        return null
+    }
+
+    val compressed = compressStringZstd(stream)
+    Log.i(
+        "compression",
+        "from ${stream.toByteArray(Charsets.UTF_8).size} bytes to ${compressed.size}",
+    )
+
+    val req = ExportIntakesRequest(stream)
+    val resp = commRepository.putIntakesServer(req)
+
+    if (resp.data == null) {
+        Log.i("export server", "data is null. server response -> ${resp.message}")
+        val toast =
+            Toast.makeText(
+                application,
+                application
+                    .getString(R.string.export_failure),
+                duration,
+            )
+
+        toast.show()
+        return null
+    }
+
+    resp.data.let { response ->
+        Log.i(
+            "import_export",
+            "exported to the server. ret -> $response",
+        )
+        val toast =
+            Toast.makeText(
+                application,
+                application
+                    .getString(R.string.export_success),
+                duration,
+            )
+        toast.show()
+    }
+    return compressed
+}
+
+fun importHelper(
+    application: Application,
+    importStatus: E_ImportServerError,
+) {
+    var msg = ""
+    val duration = Toast.LENGTH_SHORT
+
+    when (importStatus) {
+        E_ImportServerError.INIT -> {
+        }
+
+        E_ImportServerError.SUCCESS -> {
+            msg = application.getString(R.string.import_success)
+        }
+
+        E_ImportServerError.CONV_STR_DATA_ERROR -> {
+            msg = application.getString(R.string.str_to_intakes_error)
+        }
+
+        E_ImportServerError.OTHER_ERROR -> {
+            msg = application.getString(R.string.import_failure)
+        }
+    }
+    val toast = Toast.makeText(application, msg, duration)
+    toast.show()
+}
+
+fun compressStringZstd(s: String): ByteArray {
+    val input = s.toByteArray(Charsets.UTF_8)
+    return Zstd.compress(input, Constants.ZSTD_COMPRESSION_LEVEL)
 }
 
 // /////////////////////////////////////////////////////////////////////////////////////////////////
@@ -569,25 +715,7 @@ fun getRandNotifMsg(context: Context): String {
 
 // /////////////////////////////////////////////////////////////////////////////////////////////////
 // tiles
-fun getTimeLineBuilder(layoutElement: LayoutElement): Timeline =
-    Timeline
-        .Builder()
-        .addTimelineEntry(
-            getTimeLineEntry(
-                layoutElement,
-            ),
-        ).build()
-
-fun getTimeLineEntry(tileLayout: LayoutElement): TimelineEntry =
-    TimelineEntry
-        .Builder()
-        .setLayout(
-            LayoutElementBuilders.Layout
-                .Builder()
-                .setRoot(
-                    tileLayout,
-                ).build(),
-        ).build()
+fun getTimeLineBuilder(layoutElement: LayoutElement): Timeline = Timeline.fromLayoutElement(layoutElement)
 
 fun openAppMod(packageName: String): ActionBuilders.LaunchAction =
     ActionBuilders.LaunchAction
@@ -601,13 +729,130 @@ fun openAppMod(packageName: String): ActionBuilders.LaunchAction =
                 .build(),
         ).build()
 
-fun setModifiers(packageName: String): ModifiersBuilders.Modifiers =
-    ModifiersBuilders.Modifiers
-        .Builder()
-        .setClickable(
-            Clickable
-                .Builder()
-                .setOnClick(
-                    openAppMod(packageName),
-                ).build(),
-        ).build()
+suspend fun checkClickIdAction(
+    application: Context,
+    requestParams: RequestBuilders.TileRequest,
+    repository: WaterIntakeRepository,
+) {
+    when (requestParams.currentState.lastClickableId) {
+        "ID_CLICK_RM_INTAKE" -> {
+            Log.i("tile action", "rm intake")
+            repository.removeLastIntake()
+
+            Toast
+                .makeText(
+                    application,
+                    application.getString(R.string.removed_last),
+                    Toast.LENGTH_SHORT,
+                ).show()
+        }
+
+        "ID_CLICK_ADD_INTAKE" -> {
+            Log.i("tile action", "add intake")
+            repository.insertIntake()
+
+            // update the worker to not send any notification that is like a minute away
+            val notifPref =
+                E_NotifPeriod.fromValue(
+                    repository
+                        .getNotifPref(
+                            DB_NOTIF_LEVEL_IDX,
+                        ).firstOrNull() ?: E_NotifPeriod.ONE_HOUR_MODE.value,
+                )
+            Toast
+                .makeText(
+                    application,
+                    application.getString(R.string.registered),
+                    Toast.LENGTH_SHORT,
+                ).show()
+
+            reSchedPeriodicWork(
+                context = application,
+                notifPref = notifPref,
+                careAboutDisabled = false,
+            )
+        }
+
+        else -> {
+        }
+    }
+}
+
+suspend fun getCurrentIntakeTile(repository: WaterIntakeRepository): Int {
+    val now: ZonedDateTime = ZonedDateTime.now()
+    val startOfDay: ZonedDateTime = now.toLocalDate().atStartOfDay(now.zone)
+    val startOfDayTimestamp = startOfDay.toInstant().toEpochMilli()
+
+    val currentIntake: Int =
+        withContext(Dispatchers.IO) {
+            repository.getCountTgtThis(startOfDayTimestamp).first()
+        }
+
+    return currentIntake
+}
+
+suspend fun getTargetTile(repository: WaterIntakeRepository): Int {
+    val targetVal: Int =
+        withContext(Dispatchers.IO) {
+            repository.getTarget(1).first()
+        }
+
+    return targetVal
+}
+
+fun <T> readTypeCompanion(
+    anyState: AnyState<T>,
+    res: Resource<T>,
+): AnyState<T> =
+    when (res) {
+        is Resource.Success -> {
+            anyState
+                .copy(
+                    data = res.data,
+                    loading = false,
+                    error = null,
+                ).also {
+                    Log.i("anystate", "success.")
+                }
+        }
+
+        is Resource.Error -> {
+            anyState
+                .copy(data = null, loading = false, error = res.message)
+                .also {
+                    Log.i("anystate", "failure.")
+                }
+        }
+    }
+
+// import export: comm with server
+fun loadServerAddress(context: Context): String {
+    val address =
+        loadSharedPref(
+            SHARED_DATA,
+            SERVER_ADDR_KEY,
+            SERVER_ADDR,
+            context,
+        )
+
+    println("Loading server address -> $address")
+    return address
+}
+
+fun updateServerAddress(
+    target: String,
+    context: Context,
+) {
+    storeSharedPref(
+        SHARED_DATA,
+        SERVER_ADDR_KEY,
+        target,
+        context,
+    )
+    Toast
+        .makeText(
+            context,
+            "You'll need to restart the app by yourself now",
+            Toast.LENGTH_LONG,
+        ).show()
+}

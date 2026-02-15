@@ -8,6 +8,9 @@ on:
 
   workflow_dispatch:
 
+env:
+  CARGO_TERM_COLOR: always
+
 jobs:
   build:
     name: "Main build"
@@ -104,6 +107,83 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           VALIDATE_KOTLIN: true
           DISABLE_ERRORS: false
+
+  cargo-build:
+    name: "Rust cargo build"
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          submodules: "recursive"
+
+      - name: Install stable rust
+        uses: dtolnay/rust-toolchain@stable
+
+      - uses: Swatinem/rust-cache@v2
+        with:
+          cache-all-crates: "true"
+          workspaces: |
+            import_export_helper/
+
+      - name: Cargo build
+        run: |
+          cd ./import_export_helper/
+          cargo build --release --bin watchAppHelper
+          echo "tui mode"
+          cargo build --release --bin watchAppHelper-Tui
+
+      - name: Upload helper bin
+        uses: actions/upload-artifact@v6
+        with:
+          name: rust_helper_bins_cli_tui
+          path: |
+            import_export_helper/target/release/watchAppHelper
+            import_export_helper/target/release/watchAppHelper-Tui
+
+  cargo-clippy:
+    name: "Rust cargo clippy"
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          submodules: "recursive"
+
+      - name: Install stable rust
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          components: clippy
+
+      - uses: Swatinem/rust-cache@v2
+        with:
+          cache-all-crates: "true"
+          workspaces: |
+            import_export_helper/
+
+      - name: Rust clippy
+        run: |
+          cd ./import_export_helper/
+          cargo clippy --all --all-targets
+
+  cargo-fmt:
+    name: "Rust cargo fmt"
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          submodules: "recursive"
+
+      - name: Install rust nightly
+        uses: dtolnay/rust-toolchain@nightly
+        with:
+          components: rustfmt
+
+      - name: Rust fmt
+        run: |
+          cd ./import_export_helper/
+          cargo +nightly fmt --check --all
 
   androidTest:
     runs-on: ubuntu-latest

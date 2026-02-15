@@ -8,4 +8,16 @@ sealed class ImportExportEvents {
     data class OnExportClick(
         val q: Int,
     ) : ImportExportEvents()
+
+    data class OnChgServerAddress(
+        val q: String,
+    ) : ImportExportEvents()
+
+    object OnExportToServer : ImportExportEvents()
+
+    object OnSeeServerPageClick : ImportExportEvents()
+
+    object OnLoadServerIntakeData : ImportExportEvents()
+
+    object OnServerPing : ImportExportEvents()
 }
