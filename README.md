@@ -26,11 +26,11 @@ to have a phone connected to it, nor have to set up alarms manually.
 > If you have version `v1` installed, consider making a `backup` of your data.
 > It's not that difficult. You might get a problem with `app signatures` otherwise.
 > You'll see in the `release` page, some steps into making the backup process.
-
-> Old import/export will be removed in favor of using the tool here
-> [Tui \& Cli](https://github.com/RomaricKc1/water_reminder-backup_restore.git). Just launch this binary (downloadable in the release page as well)
-> with the appropriate address and port, and do the process in the app.
-> You may change the `endpoint` from the watch app if desired.
+>
+> The old import/export will be removed in favor of using the tool here
+> [Tui \& Cli](https://github.com/RomaricKc1/water_reminder-backup_restore.git). Just launch this binary (downloadable in the `release` page as well)
+> launch with the appropriate address and port, and continue the process in the
+> watch app. You may change the `endpoint` from the watch app if desired.
 
 ### Installation process
 
@@ -56,9 +56,9 @@ And `voilà`!
 
 ## Screenshots
 
-|                        Home                        |                        Notification                         |                          History days                           |                          History months                          |                            Tile detailed                            |                         Tile zen                         |                          Tile goal                           |
-| :------------------------------------------------: | :---------------------------------------------------------: | :-------------------------------------------------------------: | :--------------------------------------------------------------: | :-----------------------------------------------------------------: | :------------------------------------------------------: | :----------------------------------------------------------: |
-| <img src="./img/home.png" alt="home" width="200"/> | <img src="./img/notif.png" alt="notification" width="200"/> | <img src="./img/hist_days.png" alt="History days" width="200"/> | <img src="./img/hist_months.png" alt="hist months" width="200"/> | <img src="./img/tile_detailed.png" alt="tile deailed" width="200"/> | <img src="./img/tile_zen.png" alt="tile 2" width="200"/> | <img src="./img/tile_goal.png" alt="tile goal" width="200"/> |
+|                        Home                        |                        Notification                         |                          History days                           |                          History months                          |                            Tile detailed                             |                         Tile zen                         |                          Tile goal                           |
+| :------------------------------------------------: | :---------------------------------------------------------: | :-------------------------------------------------------------: | :--------------------------------------------------------------: | :------------------------------------------------------------------: | :------------------------------------------------------: | :----------------------------------------------------------: |
+| <img src="./img/home.png" alt="home" width="200"/> | <img src="./img/notif.png" alt="notification" width="200"/> | <img src="./img/hist_days.png" alt="History days" width="200"/> | <img src="./img/hist_months.png" alt="hist months" width="200"/> | <img src="./img/tile_detailed.png" alt="tile detailed" width="200"/> | <img src="./img/tile_zen.png" alt="tile 2" width="200"/> | <img src="./img/tile_goal.png" alt="tile goal" width="200"/> |
 
 More in the [`./img`](./img/) folder.
 

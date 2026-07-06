@@ -12,7 +12,7 @@ plugins {
 
 android {
     namespace = "com.romarickc.reminder"
-    compileSdk = 36
+    compileSdk = 37
 
     defaultConfig {
         applicationId = "com.romarickc.reminder"
@@ -79,8 +79,8 @@ tasks.withType<Test> {
 dependencies {
     ksp(libs.room.compiler)
 
-    kapt(libs.hilt.android.compiler)
-    kapt(libs.hilt.compiler)
+    ksp(libs.hilt.android.compiler)
+    ksp(libs.hilt.compiler)
     kapt(libs.kotlin.metadata.jvm)
 
     implementation(libs.accompanist.permissions)
