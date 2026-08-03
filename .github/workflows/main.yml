@@ -32,11 +32,23 @@ jobs:
       - name: Build release
         run: ./gradlew assembleRelease --profile
 
-      - name: Upload release APK and build profile artifact
+      - name: Signing APK
+        id: sign_app
+        uses: ilharp/sign-android-release@v2
+        with:
+          releaseDir: app/build/outputs/apk/release
+          signingKey: ${{ secrets.SIGN_KEY_BASE64 }}
+          keyAlias: ${{ secrets.KEY_ALIAS }}
+          keyStorePassword: ${{ secrets.KEYSTORE_PASSWD }}
+          keyPassword: ${{ secrets.KEY_PASSWD }}
+          buildToolsVersion: 35.0.0
+
+      - name: Upload signed release APK and build profile artifact
         uses: actions/upload-artifact@v6
         with:
           name: android-release-and-build_profile
           path: |
+            ${{ steps.sign_app.outputs.signedFile }}
             app/build/outputs/apk/release/*.apk
             build/reports/profile/profile-*.html
 
