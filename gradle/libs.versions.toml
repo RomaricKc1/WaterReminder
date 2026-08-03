@@ -23,11 +23,10 @@ lifecycle-runtime-ktx = "2.11.0"
 material3 = "1.4.0"
 material-icon = "1.7.8"
 navigation-ui-ktx = "2.9.8"
-okhttp="5.4.0"
-play-service = "20.0.1"
+okhttp = "5.4.0"
 protoLayoutVersion = "1.4.1"
 recyclerview = "1.4.0"
-retrofit="3.0.0"
+retrofit = "3.0.0"
 room = "2.8.4"
 rules = "1.7.0"
 runner = "1.7.0"
@@ -65,7 +64,7 @@ hilt-work = { group = "androidx.hilt", name = "hilt-work", version.ref = "hilt-w
 horologist-compose-layout = { group = "com.google.android.horologist", name = "horologist-compose-layout", version.ref = "horologist" }
 horologist-compose-tools = { group = "com.google.android.horologist", name = "horologist-compose-tools", version.ref = "horologist" }
 horologist-tiles = { group = "com.google.android.horologist", name = "horologist-tiles", version.ref = "horologist" }
-kotlin-metadata-jvm = {group = "org.jetbrains.kotlin", name = "kotlin-metadata-jvm", version.ref = "kotlin-metadata-jvm" }
+kotlin-metadata-jvm = { group = "org.jetbrains.kotlin", name = "kotlin-metadata-jvm", version.ref = "kotlin-metadata-jvm" }
 kotlin-test = { group = "org.jetbrains.kotlin", name = "kotlin-test", version.ref = "kotlin" }
 kotlinx-coroutines-test = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-test", version.ref = "coroutines-version" }
 legacy-v4 = { group = "androidx.legacy", name = "legacy-support-v4", version.ref = "legacy-v4" }
@@ -75,8 +74,7 @@ material-icons-core = { group = "androidx.compose.material", name = "material-ic
 material-icons-extended = { group = "androidx.compose.material", name = "material-icons-extended", version.ref = "material-icon" }
 navigation-ui-ktx = { group = "androidx.navigation", name = "navigation-ui-ktx", version.ref = "navigation-ui-ktx" }
 perc-layout = { group = "androidx.percentlayout", name = "percentlayout", version.ref = "layout" }
-play-service = { group = "com.google.android.gms", name = "play-services-wearable", version.ref = "play-service" }
-protolayout = { group = "androidx.wear.protolayout", name="protolayout", version.ref = "protoLayoutVersion" }
+protolayout = { group = "androidx.wear.protolayout", name = "protolayout", version.ref = "protoLayoutVersion" }
 protolayout-expression = { group = "androidx.wear.protolayout", name = "protolayout-expression", version.ref = "protoLayoutVersion" }
 protolayout-material3 = { group = "androidx.wear.protolayout", name = "protolayout-material3", version.ref = "protoLayoutVersion" }
 recyclerview = { group = "androidx.recyclerview", name = "recyclerview", version.ref = "recyclerview" }
@@ -86,9 +84,9 @@ room-runtime = { group = "androidx.room", name = "room-runtime", version.ref = "
 rules = { group = "androidx.test", name = "rules", version.ref = "rules" }
 runner = { group = "androidx.test", name = "runner", version.ref = "runner" }
 runtime-livedata = { group = "androidx.compose.runtime", name = "runtime-livedata", version.ref = "runtime-livedata" }
-squareup-okhttp = {group="com.squareup.okhttp3", name="okhttp", version.ref="okhttp"}
-squareup-retrofit2-converter-gson = {group="com.squareup.retrofit2", name="converter-gson", version.ref="retrofit"}
-squareup-retrofit2 = {group="com.squareup.retrofit2", name="retrofit", version.ref="retrofit"}
+squareup-okhttp = { group = "com.squareup.okhttp3", name = "okhttp", version.ref = "okhttp" }
+squareup-retrofit2-converter-gson = { group = "com.squareup.retrofit2", name = "converter-gson", version.ref = "retrofit" }
+squareup-retrofit2 = { group = "com.squareup.retrofit2", name = "retrofit", version.ref = "retrofit" }
 test-core = { group = "androidx.test", name = "core", version.ref = "test-core" }
 wear = { group = "androidx.wear", name = "wear", version.ref = "wear" }
 wear-tooling-preview = { group = "androidx.wear", name = "wear-tooling-preview", version.ref = "wear-tooling" }

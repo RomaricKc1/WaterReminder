@@ -107,7 +107,6 @@ dependencies {
     implementation(libs.material.icons.extended)
     implementation(libs.navigation.ui.ktx)
     implementation(libs.perc.layout)
-    implementation(libs.play.service)
     implementation(libs.protolayout)
     implementation(libs.protolayout.expression)
     implementation(libs.protolayout.material3)
