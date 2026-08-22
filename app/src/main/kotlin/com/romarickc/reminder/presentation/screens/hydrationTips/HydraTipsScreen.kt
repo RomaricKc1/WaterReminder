@@ -20,6 +20,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.wear.compose.foundation.lazy.TransformingLazyColumn
 import androidx.wear.compose.foundation.lazy.rememberTransformingLazyColumnState
+import androidx.wear.compose.foundation.rotary.RotaryScrollableDefaults
 import androidx.wear.compose.material3.AppCard
 import androidx.wear.compose.material3.AppScaffold
 import androidx.wear.compose.material3.EdgeButton
@@ -132,13 +133,20 @@ fun HydrationTipsContent(tipsList: List<Tip>) {
 
             TransformingLazyColumn(
                 state = listState,
+                rotaryScrollableBehavior =
+                    RotaryScrollableDefaults.behavior(
+                        listState,
+                        hapticFeedbackEnabled = false,
+                    ),
                 contentPadding = contentPadding,
             ) {
                 // title
                 item {
                     ListHeader(
                         modifier =
-                            Modifier.fillMaxWidth().transformedHeight(this, transformationSpec),
+                            Modifier
+                                .fillMaxWidth()
+                                .transformedHeight(this, transformationSpec),
                         transformation = SurfaceTransformation(transformationSpec),
                     ) {
                         Text(
@@ -227,7 +235,8 @@ fun SimpleCard(
 @Composable
 fun Preview() {
     ReminderTheme {
-        HydrationTipsContent( // onEvent = {}
+        HydrationTipsContent(
+            // onEvent = {}
             listOf(
                 Tip("Tip 1", "Drink water before meals"),
                 Tip("Tip 2", "Carry a water bottle with you"),

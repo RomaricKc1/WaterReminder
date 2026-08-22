@@ -43,6 +43,7 @@ import androidx.core.net.toUri
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.wear.compose.foundation.lazy.TransformingLazyColumn
 import androidx.wear.compose.foundation.lazy.rememberTransformingLazyColumnState
+import androidx.wear.compose.foundation.rotary.RotaryScrollableDefaults
 import androidx.wear.compose.material3.AppCard
 import androidx.wear.compose.material3.AppScaffold
 import androidx.wear.compose.material3.CardDefaults
@@ -200,6 +201,11 @@ fun HomeContent(
             TransformingLazyColumn(
                 state = listState,
                 contentPadding = contentPadding,
+                rotaryScrollableBehavior =
+                    RotaryScrollableDefaults.behavior(
+                        listState,
+                        hapticFeedbackEnabled = false,
+                    ),
                 modifier = Modifier.testTag("lazyColumn"),
             ) {
                 // title

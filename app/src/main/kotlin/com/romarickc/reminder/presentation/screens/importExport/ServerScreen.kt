@@ -36,6 +36,7 @@ import androidx.core.graphics.createBitmap
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.wear.compose.foundation.lazy.TransformingLazyColumn
 import androidx.wear.compose.foundation.lazy.rememberTransformingLazyColumnState
+import androidx.wear.compose.foundation.rotary.RotaryScrollableDefaults
 import androidx.wear.compose.material3.AppScaffold
 import androidx.wear.compose.material3.CircularProgressIndicator
 import androidx.wear.compose.material3.EdgeButton
@@ -135,6 +136,11 @@ fun ServerContent(
 
                 TransformingLazyColumn(
                     state = listState,
+                    rotaryScrollableBehavior =
+                        RotaryScrollableDefaults.behavior(
+                            listState,
+                            hapticFeedbackEnabled = false,
+                        ),
                     contentPadding = contentPadding,
                 ) {
                     // title
@@ -322,6 +328,11 @@ fun DispServerComm(
 
             TransformingLazyColumn(
                 state = listState,
+                rotaryScrollableBehavior =
+                    RotaryScrollableDefaults.behavior(
+                        listState,
+                        hapticFeedbackEnabled = false,
+                    ),
                 contentPadding = contentPadding,
             ) {
                 // current address

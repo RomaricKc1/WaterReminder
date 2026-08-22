@@ -20,6 +20,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.wear.compose.foundation.lazy.TransformingLazyColumn
 import androidx.wear.compose.foundation.lazy.rememberTransformingLazyColumnState
+import androidx.wear.compose.foundation.rotary.RotaryScrollableDefaults
 import androidx.wear.compose.material3.AppScaffold
 import androidx.wear.compose.material3.ScreenScaffold
 import androidx.wear.tooling.preview.devices.WearDevices
@@ -83,6 +84,11 @@ fun MonthsGraphContent(waterIntakeList: List<WaterIntake>) {
         ) { contentPadding ->
             TransformingLazyColumn(
                 state = listState,
+                rotaryScrollableBehavior =
+                    RotaryScrollableDefaults.behavior(
+                        listState,
+                        hapticFeedbackEnabled = false,
+                    ),
                 contentPadding = contentPadding,
                 verticalArrangement = Arrangement.Center,
                 modifier = Modifier.fillMaxHeight(),

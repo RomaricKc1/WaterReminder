@@ -20,6 +20,7 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.wear.compose.foundation.lazy.TransformingLazyColumn
 import androidx.wear.compose.foundation.lazy.rememberTransformingLazyColumnState
+import androidx.wear.compose.foundation.rotary.RotaryScrollableDefaults
 import androidx.wear.compose.material3.AppScaffold
 import androidx.wear.compose.material3.EdgeButton
 import androidx.wear.compose.material3.EdgeButtonSize
@@ -98,6 +99,11 @@ fun ImportExportContent(onEvent: (ImportExportEvents) -> Unit) {
 
             TransformingLazyColumn(
                 state = listState,
+                rotaryScrollableBehavior =
+                    RotaryScrollableDefaults.behavior(
+                        listState,
+                        hapticFeedbackEnabled = false,
+                    ),
                 contentPadding = contentPadding,
             ) {
                 // title
