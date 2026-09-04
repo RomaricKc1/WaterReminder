@@ -1,5 +1,10 @@
 # WaterReminder
 
+## WIP: wear os 7 widgets
+
+- <https://developer.android.com/training/wearables/widgets/get_started>
+- <https://developer.android.com/training/wearables/widgets/migration>
+
 WaterReminder, built for `wear-os` devices using `jetpack compose`, to help you
 stay `hydrated` throughout the days.
 
