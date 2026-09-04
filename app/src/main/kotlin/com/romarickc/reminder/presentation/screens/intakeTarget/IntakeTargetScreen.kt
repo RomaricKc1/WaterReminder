@@ -23,6 +23,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.wear.compose.foundation.lazy.rememberTransformingLazyColumnState
+import androidx.wear.compose.foundation.rotary.RotaryScrollableDefaults
 import androidx.wear.compose.material3.AppScaffold
 import androidx.wear.compose.material3.Icon
 import androidx.wear.compose.material3.ListHeader
@@ -119,6 +120,11 @@ fun IntakeTargetContent(
                         Modifier
                             .height(97.dp),
                     state = pickerState,
+                    rotaryScrollableBehavior =
+                        RotaryScrollableDefaults.behavior(
+                            listState,
+                            hapticFeedbackEnabled = false,
+                        ),
                     contentDescription = { "sel target value" },
                 ) {
                     Text(
